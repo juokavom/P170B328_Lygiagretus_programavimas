@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="5fe30ee4-394c-46f1-ad28-2c46bba25ad3" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/P170B328-Lab2.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" path="C:\Users\Studijos\sdk\go1.15.2" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1jyAzg3eWMXQT9E8h3cUMiHGtnn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../P170B328-Lab1a" />
+  </component>
+  <component name="RunManager">
+    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="P170B328-Lab2" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build main.go" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="805" y="311" key="FileChooserDialogImpl" timestamp="1604766267541">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="805" y="311" key="FileChooserDialogImpl/0.0.2048.1112/-1440.-234.1152.2008@0.0.2048.1112" timestamp="1604766267541" />
+    <state width="2005" height="161" key="GridCell.Tab.0.bottom" timestamp="1604766423668">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2005" height="161" key="GridCell.Tab.0.bottom/0.0.2048.1112/-1440.-234.1152.2008@0.0.2048.1112" timestamp="1604766423668" />
+    <state width="2005" height="161" key="GridCell.Tab.0.center" timestamp="1604766423668">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2005" height="161" key="GridCell.Tab.0.center/0.0.2048.1112/-1440.-234.1152.2008@0.0.2048.1112" timestamp="1604766423668" />
+    <state width="2005" height="161" key="GridCell.Tab.0.left" timestamp="1604766423668">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2005" height="161" key="GridCell.Tab.0.left/0.0.2048.1112/-1440.-234.1152.2008@0.0.2048.1112" timestamp="1604766423668" />
+    <state width="2005" height="161" key="GridCell.Tab.0.right" timestamp="1604766423668">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2005" height="161" key="GridCell.Tab.0.right/0.0.2048.1112/-1440.-234.1152.2008@0.0.2048.1112" timestamp="1604766423668" />
+  </component>
+</project>
