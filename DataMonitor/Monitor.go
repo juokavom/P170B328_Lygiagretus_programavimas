@@ -52,7 +52,7 @@ func InitializeSDM(size int) SortedResultMonitor {
 	return dataMonitor
 }
 
-func (monitor *DataMonitor) ProvideItems(items IT.Items) {
+func ProvideItems(items IT.Items) {
 	for _, item := range items.Items {
 		monitor.addItem(item)
 	}
@@ -98,7 +98,18 @@ func (resultMonitor *SortedResultMonitor) GetItems() []IT.ItemWithResult{
 	return finalContainer
 }
 
-func Work(monitor *DataMonitor, result *SortedResultMonitor, group *sync.WaitGroup) {
+func DataProcess(group *sync.WaitGroup, count int, readChan <-chan IT.Item, writeChan chan<- IT.Item){
+	defer group.Done()
+	dataMonitor := InitializeDM(count)
+}
+
+func ResultProcess(group *sync.WaitGroup, count int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult){
+	defer group.Done()
+	resultMonitor := InitializeSDM(count)
+
+}
+
+func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, writeChan chan<- IT.ItemWithResult) {
 	defer group.Done()
 	done := false
 	for !done {
