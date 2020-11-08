@@ -79,7 +79,6 @@ func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readF
 				countAll++
 				writeChan <- container[count]
 			}
-
 		}
 	}
 	for i := 0; i < threads; i++ {
@@ -102,7 +101,11 @@ func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithR
 			count++
 		}
 	}
-	writeChan <- container
+	resultContainer := make([]IT.ItemWithResult, count)
+	for i := 0; i < count; i++ {
+		resultContainer[i] = container[i]
+	}
+	writeChan <- resultContainer
 }
 
 func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult) {
