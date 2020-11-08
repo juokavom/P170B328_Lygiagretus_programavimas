@@ -13,28 +13,6 @@ func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int
 		writeChan <- item
 	}
 }
-/*
-func (resultMonitor *SortedResultMonitor) addItemSorted(item IT.ItemWithResult){
-	//surikiuoti
-	resultMonitor.mutex.Lock()
-	resultMonitor.Length++
-	if resultMonitor.Length == 1 {
-		resultMonitor.container[0] = item
-	}else if item.Result > resultMonitor.container[resultMonitor.Length-2].Result{
-		resultMonitor.container[resultMonitor.Length-1] = item
-	}else {
-		for i := 0; i < resultMonitor.Length-1; i++ {
-			if item.Result < resultMonitor.container[i].Result {
-				for u := resultMonitor.Length-1; u > i; u-- {
-					resultMonitor.container[u] = resultMonitor.container[u-1]
-				}
-				resultMonitor.container[i] = item
-				break
-			}
-		}
-	}
-	resultMonitor.mutex.Unlock()
-}*/
 func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, threads int){
 	defer group.Done()
 	container := make([]IT.Item, size/3)
@@ -67,7 +45,6 @@ func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readF
 		writeChan <- IT.Item{Quantity: -1}
 	}
 }
-
 func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult, threads int){
 	defer group.Done()
 	container := make([]IT.ItemWithResult, size)

@@ -3,6 +3,7 @@ package main
 import (
 	DM "./DataMonitor"
 	IT "./Item"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -46,15 +47,16 @@ func WriteData(fileName string, results []IT.ItemWithResult) {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	f.WriteString("-------------------------------------------------\n")
-	f.WriteString("|Title               |Quantity|Price  |Result   |\n")
-	f.WriteString("-------------------------------------------------\n")
+	f.WriteString("------------------------------------------------------\n")
+	f.WriteString("|No. |Title               |Quantity|Price  |Result   |\n")
+	f.WriteString("------------------------------------------------------\n")
 	for i := 0; i < len(results); i++{
-		_, err2 := f.WriteString(results[i].ToString())
+		nr := fmt.Sprintf("|%-4d%s", i+1, results[i].ToString())
+		_, err2 := f.WriteString(nr)
 		if err2 != nil {
 			log.Fatal(err2)
 		}
 	}
-	f.WriteString("-------------------------------------------------\n")
+	f.WriteString("------------------------------------------------------\n")
 
 }
