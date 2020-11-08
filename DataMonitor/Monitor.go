@@ -11,7 +11,6 @@ func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int
 		writeFlag <- 1
 		writeChan <- item
 	}
-	end <- 1
 }
 /*
 func (resultMonitor *SortedResultMonitor) addItemSorted(item IT.ItemWithResult){
@@ -58,12 +57,14 @@ func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readF
 	defer group.Done()
 	container := make([]IT.Item, size/3)
 	count := 0
-	for {
+	countAll := 0
+	for countAll < size-1{
 		if count >= len(container)-1{
 			//fmt.Println("cia2")
 			//Pilnas - nepriimti rasanciu (tik salinancius)
 			<-writeFlag
 			count--
+			countAll++
 			writeChan <- container[count]
 		} else if count <= 0{
 			//fmt.Println("cia")
@@ -81,22 +82,22 @@ func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readF
 			case <- writeFlag:
 				//fmt.Println("opa2")
 				count--
+				countAll++
 				writeChan <- container[count]
-			case <- end:
-				break
 			}
 
 		}
-
-		/*for u := 0; u < len(container); u++ {
+/*
+		for u := 0; u < len(container); u++ {
 			fmt.Println(container[u])
-		}*/
-		//fmt.Println(count)
-		//fmt.Println()
-
+		}
+		fmt.Println(count)
+		fmt.Println()
+*/
 
 	}
-	//fmt.Println("END OF STREAM")
+	<-writeFlag
+	writeChan <- IT.Item{Quantity: -1}
 }
 
 func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult){
@@ -109,6 +110,9 @@ func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<-
 	for {
 		readFlag <- 1
 		item := <-readChan
+		if item.Quantity == -1{
+			break
+		}
 		fmt.Println(item.ToString())
 	}
 
