@@ -9,28 +9,27 @@ import (
 func main() {
 	mainData := make(chan IT.Item)
 	mainFlagData := make(chan int)
-	end := make(chan int)
 	dataWorker := make(chan IT.Item)
 	dataFlagWorker := make(chan int)
 	workerResult := make(chan IT.ItemWithResult)
-	//resultMain := make(chan []IT.ItemWithResult)
+	resultMain := make(chan []IT.ItemWithResult)
 
 	//1. Nuskaito duomenu faila i lokalu masyva
 	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_1.json")
 	//Giju skaicius : 2 <= x <= n/4 (n = 30)
-	threadCount := 1
+	threadCount := 6
 	//2. Paleidzia pasirinkta kieki giju
 	var waitGroup = sync.WaitGroup{}
 	waitGroup.Add(threadCount+1)
-	//for i := 0; i < threadCount; i++ {
-		go DM.WorkProcess(&waitGroup, dataWorker, dataFlagWorker,workerResult, end)
-	//}
+	for i := 0; i < threadCount; i++ {
+		go DM.WorkProcess(&waitGroup, dataWorker, dataFlagWorker,workerResult)
+	}
 	//2. Paleidzia vieną duomenu˛ masyvą valdanti˛ procesą;
-	go DM.DataProcess(&waitGroup, len(items.Items), mainData, mainFlagData, dataWorker, dataFlagWorker, end)
+	go DM.DataProcess(&waitGroup, len(items.Items), mainData, mainFlagData, dataWorker, dataFlagWorker, threadCount)
 	//2. Paleidzia vieną rezultatu˛ masyvą valdanti˛ procesą.
-	//go DM.ResultProcess(&waitGroup, len(items.Items), workerResult, resultMain)
+	go DM.ResultProcess(&waitGroup, len(items.Items), workerResult, resultMain, threadCount)
 	//3. . Duomenu˛ masyvą valdančiam procesui po vieną persiunčia visus nuskaitytus elementus iš failo.
-	DM.ProvideItems(items, mainData, mainFlagData, end)
+	DM.ProvideItems(items, mainData, mainFlagData)
 
 
 	//4. Palaukia, kol visos paleistos gijos baigs darba

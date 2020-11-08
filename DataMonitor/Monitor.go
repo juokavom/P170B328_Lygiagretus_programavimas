@@ -3,10 +3,11 @@ package DataMonitor
 import (
 	IT "../Item"
 	"fmt"
+	"strconv"
 	"sync"
 )
 
-func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int, end chan<- int) {
+func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int) {
 	for _, item := range items.Items {
 		writeFlag <- 1
 		writeChan <- item
@@ -53,59 +54,57 @@ func (resultMonitor *SortedResultMonitor) GetItems() []IT.ItemWithResult{
 	return finalContainer
 }*/
 
-func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, end <-chan int){
+func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, threads int){
 	defer group.Done()
 	container := make([]IT.Item, size/3)
 	count := 0
 	countAll := 0
-	for countAll < size-1{
+	for countAll < size{
 		if count >= len(container)-1{
-			//fmt.Println("cia2")
-			//Pilnas - nepriimti rasanciu (tik salinancius)
 			<-writeFlag
 			count--
 			countAll++
 			writeChan <- container[count]
 		} else if count <= 0{
-			//fmt.Println("cia")
-			//Tuscias - nepriimti salinanciu (tik rasancius)
 			<- readFlag
 			container[count] = <- readChan
 			count++
 		} else {
-			//fmt.Println("cia3")
 			select {
 			case <- readFlag:
-				//fmt.Println("opa1")
 				container[count] = <- readChan
 				count++
 			case <- writeFlag:
-				//fmt.Println("opa2")
 				count--
 				countAll++
 				writeChan <- container[count]
 			}
 
 		}
-/*
-		for u := 0; u < len(container); u++ {
-			fmt.Println(container[u])
-		}
-		fmt.Println(count)
-		fmt.Println()
-*/
-
 	}
-	<-writeFlag
-	writeChan <- IT.Item{Quantity: -1}
+	for i := 0; i < threads; i++ {
+		<-writeFlag
+		writeChan <- IT.Item{Quantity: -1}
+	}
 }
 
-func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult){
+func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult, threads int){
 	defer group.Done()
-	//resultMonitor := InitializeSDM(count)
+	container := make([]IT.ItemWithResult, size)
+	endedThreads := 0
+	count := 0
+	for endedThreads < threads{
+		item := <- readChan
+		if item.Result == -1{
+			endedThreads++
+		} else {
+			container[count] = item
+			count++
+		}
+	}
 }
 
-func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult, end <-chan int) {
+func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult) {
 	defer group.Done()
 	for {
 		readFlag <- 1
@@ -113,8 +112,16 @@ func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<-
 		if item.Quantity == -1{
 			break
 		}
-		fmt.Println(item.ToString())
+		itemWithResult := IT.ItemWithResult{
+			Item:   item,
+			Result: item.CalculateValue(),
+		}
+		precisionString, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", itemWithResult.Result - float64(int(itemWithResult.Result ))), 2)
+		if precisionString > 0.5 {
+			writeChan <- itemWithResult
+		}
 	}
+	writeChan <- IT.ItemWithResult{Result: -1}
 
 	//fmt.Println("END OF WORK")
 	/*
