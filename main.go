@@ -3,6 +3,8 @@ package main
 import (
 	DM "./DataMonitor"
 	IT "./Item"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -20,7 +22,7 @@ func main() {
 	threadCount := 6
 	//2. Paleidzia pasirinkta kieki giju
 	var waitGroup = sync.WaitGroup{}
-	waitGroup.Add(threadCount+1)
+	waitGroup.Add(threadCount+2)
 	for i := 0; i < threadCount; i++ {
 		go DM.WorkProcess(&waitGroup, dataWorker, dataFlagWorker,workerResult)
 	}
@@ -31,13 +33,13 @@ func main() {
 	//3. . Duomenu˛ masyvą valdančiam procesui po vieną persiunčia visus nuskaitytus elementus iš failo.
 	DM.ProvideItems(items, mainData, mainFlagData)
 
-
+	results := <- resultMain
 	//4. Palaukia, kol visos paleistos gijos baigs darba
 	waitGroup.Wait()
 	//5. Atfiltruotus rezultatus isveda i tekstini faila
-	//WriteData("Data/IFF8-12_AkramasJ_L1_rez.txt", resultMonitor.GetItems())
+	WriteData("Data/IFF8-12_AkramasJ_L1_rez.txt", results)
 }
-/*
+
 func WriteData(fileName string, results []IT.ItemWithResult) {
 	f, err := os.Create(fileName)
 	if err != nil {
@@ -55,4 +57,4 @@ func WriteData(fileName string, results []IT.ItemWithResult) {
 	}
 	f.WriteString("-------------------------------------------------\n")
 
-}*/
+}

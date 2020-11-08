@@ -102,6 +102,7 @@ func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithR
 			count++
 		}
 	}
+	writeChan <- container
 }
 
 func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult) {
@@ -122,55 +123,4 @@ func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<-
 		}
 	}
 	writeChan <- IT.ItemWithResult{Result: -1}
-
-	//fmt.Println("END OF WORK")
-	/*
-	done := false
-	for !done {
-		item, doneNow, last := monitor.removeItem()
-		if !doneNow || last{
-			result.addItemSorted(IT.ItemWithResult{
-				Item:   item,
-				Result: item.CalculateValue(),
-			})
-		}
-		if doneNow || last {
-			done = true
-		}
-	}*/
 }
-/*
-func (monitor *DataMonitor) addItem(item IT.Item) {
-	monitor.mutex.Lock()
-	for monitor.currentSize > len(monitor.container)-1{
-		monitor.cond.Wait()
-	}
-	monitor.container[monitor.currentSize] = item
-	monitor.currentSize++
-	monitor.cond.Broadcast()
-	monitor.mutex.Unlock()
-}
-
-func (monitor *DataMonitor) removeItem() (IT.Item, bool, bool) {
-	monitor.mutex.Lock()
-	var item IT.Item
-	last := false
-	if !monitor.workDone{
-		for monitor.currentSize == 0 {
-			monitor.cond.Wait()
-		}
-		if monitor.currentSize > 0 {
-			item = monitor.container[monitor.currentSize-1]
-		}
-		monitor.currentSize--
-		monitor.removed++
-		if monitor.removed == monitor.length {
-			monitor.workDone = true
-			last = true
-		}
-	}
-	workDone := monitor.workDone
-	monitor.cond.Broadcast()
-	monitor.mutex.Unlock()
-	return item, workDone, last
-}*/
