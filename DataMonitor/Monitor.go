@@ -35,25 +35,6 @@ func (resultMonitor *SortedResultMonitor) addItemSorted(item IT.ItemWithResult){
 	}
 	resultMonitor.mutex.Unlock()
 }*/
-/*
-func (resultMonitor *SortedResultMonitor) GetItems() []IT.ItemWithResult{
-	var container = make([]IT.ItemWithResult, len(resultMonitor.container))
-	x := 0
-	for i := 0; i < len(resultMonitor.container); i++ {
-		value := resultMonitor.container[i].Result
-		precisionString, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", value - float64(int(value))), 2)
-		if precisionString > 0.5 {
-			container[x] = resultMonitor.container[i]
-			x++
-		}
-	}
-	finalContainer := make([]IT.ItemWithResult, x)
-	for i := 0; i < x; i++ {
-		finalContainer[i] = container[i]
-	}
-	return finalContainer
-}*/
-
 func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, threads int){
 	defer group.Done()
 	container := make([]IT.Item, size/3)
@@ -97,8 +78,22 @@ func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithR
 		if item.Result == -1{
 			endedThreads++
 		} else {
-			container[count] = item
 			count++
+			if count == 1 {
+				container[0] = item
+			}else if item.Result > container[count-2].Result{
+				container[count-1] = item
+			}else {
+				for i := 0; i < count-1; i++ {
+					if item.Result < container[i].Result {
+						for u := count-1; u > i; u-- {
+							container[u] = container[u-1]
+						}
+						container[i] = item
+						break
+					}
+				}
+			}
 		}
 	}
 	resultContainer := make([]IT.ItemWithResult, count)
