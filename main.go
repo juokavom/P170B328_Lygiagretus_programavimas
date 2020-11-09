@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 )
 
 func main() {
@@ -18,25 +17,21 @@ func main() {
 	resultMain := make(chan []IT.ItemWithResult)
 
 	//1. Nuskaito duomenu faila i lokalu masyva
-	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_1.json")
+	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_2.json")
 	//Giju skaicius : 2 <= x <= n/4 (n = 30)
 	threadCount := 6
 	//2. Paleidzia pasirinkta kieki giju
-	var waitGroup = sync.WaitGroup{}
-	waitGroup.Add(threadCount+2)
 	for i := 0; i < threadCount; i++ {
-		go DM.WorkProcess(&waitGroup, dataWorker, dataFlagWorker,workerResult)
+		go DM.WorkProcess(dataWorker, dataFlagWorker,workerResult)
 	}
 	//2. Paleidzia vieną duomenu˛ masyvą valdanti˛ procesą;
-	go DM.DataProcess(&waitGroup, len(items.Items), mainData, mainFlagData, dataWorker, dataFlagWorker, threadCount)
+	go DM.DataProcess(len(items.Items), mainData, mainFlagData, dataWorker, dataFlagWorker, threadCount)
 	//2. Paleidzia vieną rezultatu˛ masyvą valdanti˛ procesą.
-	go DM.ResultProcess(&waitGroup, len(items.Items), workerResult, resultMain, threadCount)
-	//3. . Duomenu˛ masyvą valdančiam procesui po vieną persiunčia visus nuskaitytus elementus iš failo.
+	go DM.ResultProcess(len(items.Items), workerResult, resultMain, threadCount)
+	//3. Duomenu˛ masyvą valdančiam procesui po vieną persiunčia visus nuskaitytus elementus iš failo.
 	DM.ProvideItems(items, mainData, mainFlagData)
-
+	//4. Sulaukia rezultatu is rezultatu proceso
 	results := <- resultMain
-	//4. Palaukia, kol visos paleistos gijos baigs darba
-	waitGroup.Wait()
 	//5. Atfiltruotus rezultatus isveda i tekstini faila
 	WriteData("Data/IFF8-12_AkramasJ_L1_rez.txt", results)
 }

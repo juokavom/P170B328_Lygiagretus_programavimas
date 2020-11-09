@@ -4,7 +4,6 @@ import (
 	IT "../Item"
 	"fmt"
 	"strconv"
-	"sync"
 )
 
 func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int) {
@@ -13,8 +12,7 @@ func ProvideItems(items IT.Items, writeChan chan<- IT.Item, writeFlag chan<- int
 		writeChan <- item
 	}
 }
-func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, threads int){
-	defer group.Done()
+func DataProcess(size int, readChan <-chan IT.Item, readFlag <-chan int, writeChan chan<- IT.Item, writeFlag <-chan int, threads int){
 	container := make([]IT.Item, size/3)
 	count := 0
 	countAll := 0
@@ -45,8 +43,27 @@ func DataProcess(group *sync.WaitGroup, size int, readChan <-chan IT.Item, readF
 		writeChan <- IT.Item{Quantity: -1}
 	}
 }
-func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult, threads int){
-	defer group.Done()
+
+func WorkProcess(readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult) {
+	for {
+		readFlag <- 1
+		item := <-readChan
+		if item.Quantity == -1{
+			break
+		}
+		itemWithResult := IT.ItemWithResult{
+			Item:   item,
+			Result: item.CalculateValue(),
+		}
+		precisionString, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", itemWithResult.Result - float64(int(itemWithResult.Result ))), 2)
+		if precisionString > 0.5 {
+			writeChan <- itemWithResult
+		}
+	}
+	writeChan <- IT.ItemWithResult{Result: -1}
+}
+
+func ResultProcess(size int, readChan <-chan IT.ItemWithResult, writeChan chan<- []IT.ItemWithResult, threads int){
 	container := make([]IT.ItemWithResult, size)
 	endedThreads := 0
 	count := 0
@@ -78,24 +95,4 @@ func ResultProcess(group *sync.WaitGroup, size int, readChan <-chan IT.ItemWithR
 		resultContainer[i] = container[i]
 	}
 	writeChan <- resultContainer
-}
-
-func WorkProcess(group *sync.WaitGroup, readChan <-chan IT.Item, readFlag chan<- int, writeChan chan IT.ItemWithResult) {
-	defer group.Done()
-	for {
-		readFlag <- 1
-		item := <-readChan
-		if item.Quantity == -1{
-			break
-		}
-		itemWithResult := IT.ItemWithResult{
-			Item:   item,
-			Result: item.CalculateValue(),
-		}
-		precisionString, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", itemWithResult.Result - float64(int(itemWithResult.Result ))), 2)
-		if precisionString > 0.5 {
-			writeChan <- itemWithResult
-		}
-	}
-	writeChan <- IT.ItemWithResult{Result: -1}
 }
