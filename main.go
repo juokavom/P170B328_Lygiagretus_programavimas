@@ -17,7 +17,7 @@ func main() {
 	resultMain := make(chan []IT.ItemWithResult)
 
 	//1. Nuskaito duomenu faila i lokalu masyva
-	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_2.json")
+	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_1.json")
 	//Giju skaicius : 2 <= x <= n/4 (n = 30)
 	threadCount := 6
 	//2. Paleidzia pasirinkta kieki giju
