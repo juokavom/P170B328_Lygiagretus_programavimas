@@ -12,26 +12,42 @@ namespace Optimizavimas
     {
         public static void Entry()
         {
-            int count = 200000;
-            Random randNum = new Random();
+            //---
+            int KartojimaiVidurkiui = 5;
+            int maxThread = 6;
+            //---
+            int count = 20000;
+            Diagnostics(count, maxThread, KartojimaiVidurkiui);
+            //---
+        }
+
+        public static void Diagnostics(int count, int maxThread, int kartojimai)
+        {
+            Debug.WriteLine("Duomenų rinkinio dydis = " + count);
+            double[] numberList = Enumerable.Repeat(0, count).Select(i => new Random().NextDouble() * 20 - 10).ToArray();
+
+            for (int i = 1; i <= maxThread; i++)
+            {
+                Debug.WriteLine(string.Format("Gijų skaičius = {0}, vidutinis vykdymo laikas = {1}", i, Task(numberList, i, kartojimai)));
+            }
+        }
+        public static long Task(double[] numberList, int threads, int kartojimai)
+        {
             Stopwatch stopWatch = new Stopwatch();
-            double[] numberList = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * 20 - 10).ToArray();
+            long vidurkis = 0;
+            for (int i = 0; i < kartojimai; i++)
+            {
+                stopWatch.Start();
+                double[] queryA = (from num in numberList.AsParallel().WithDegreeOfParallelism(threads)
+                                   select Work(num)).ToArray();
+                stopWatch.Stop();
+                var laikas = stopWatch.ElapsedMilliseconds;
+                Debug.WriteLine("Praejes laikas = " + laikas);
+                vidurkis += laikas;
+                stopWatch.Reset();
+            }
+            return vidurkis/kartojimai;
 
-            stopWatch.Start();
-            double[] queryA = (from num in numberList.AsParallel()
-                              select Work(num)).ToArray();
-            stopWatch.Stop();
-            var lygiagretus = stopWatch.Elapsed;
-
-            stopWatch.Restart();
-            double[] queryB = (from num in numberList
-                              select Work(num)).ToArray();
-            stopWatch.Stop();
-            var paprastas = stopWatch.Elapsed;
-
-            Debug.WriteLine("-----------------------------------------------------queryA+B-----------------------------------------------------");
-            PrintArray(queryA, queryB);
-            Debug.WriteLine("Lygiagretus = " + lygiagretus + "\nPaprastas   = " + paprastas);
         }
 
         public static double Work(double number)
