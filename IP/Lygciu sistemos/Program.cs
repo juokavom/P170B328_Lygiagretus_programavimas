@@ -14,9 +14,12 @@ namespace Optimizavimas
         [STAThread]
         static void Main()
         {
+            Test.Entry();
+            /*
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            */
         }
     }
 }
