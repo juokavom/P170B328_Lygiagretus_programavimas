@@ -13,11 +13,14 @@ namespace Optimizavimas
         public static void Entry()
         {
             //---
-            int KartojimaiVidurkiui = 5;
-            int maxThread = 6;
+            int KartojimaiVidurkiui = 10;
+            int maxThread = 15;
             //---
-            int count = 20000;
-            Diagnostics(count, maxThread, KartojimaiVidurkiui);
+            int[] rinkiniai = { 1000, 5000, 10000, 50000};
+            for (int i = 0; i < rinkiniai.Length; i++)
+            {
+                Diagnostics(rinkiniai[i], maxThread, KartojimaiVidurkiui);
+            }
             //---
         }
 
@@ -28,7 +31,7 @@ namespace Optimizavimas
 
             for (int i = 1; i <= maxThread; i++)
             {
-                Debug.WriteLine(string.Format("Gijų skaičius = {0}, vidutinis vykdymo laikas = {1}", i, Task(numberList, i, kartojimai)));
+                Debug.WriteLine(string.Format("Procesų skaičius = {0}, vidutinis vykdymo laikas = {1}", i, Task(numberList, i, kartojimai)));
             }
         }
         public static long Task(double[] numberList, int threads, int kartojimai)
@@ -42,7 +45,7 @@ namespace Optimizavimas
                                    select Work(num)).ToArray();
                 stopWatch.Stop();
                 var laikas = stopWatch.ElapsedMilliseconds;
-                Debug.WriteLine("Praejes laikas = " + laikas);
+                //Debug.WriteLine("Praejes laikas = " + laikas);
                 vidurkis += laikas;
                 stopWatch.Reset();
             }
