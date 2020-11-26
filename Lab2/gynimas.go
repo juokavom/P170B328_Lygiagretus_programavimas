@@ -60,7 +60,7 @@ func printer(in <-chan int, finish <-chan int, name string, endMain chan<- int){
 			index = 1
 		}
 	}
-
+//small changes
 	for i := 0; i < count; i++{
 		fmt.Println("Reiksme - ", array[i], ".",name,"procesas spausdintojas.")
 	}
