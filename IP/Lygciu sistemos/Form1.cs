@@ -4,6 +4,7 @@
 
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -29,14 +30,20 @@ namespace Optimizavimas
             ClearForm1();
             PreparareForm(-10, 10, -10, 10);
             //---
-            double s = 500;
-            int count = 6;
+            double s = 1900;
+            int count = 100;
             //---
             Random randNum = new Random();
-            double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble()*20-10).ToArray();
-            double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble()*20-10).ToArray();
+            double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * 20 - 10).ToArray();
+            double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * 20 - 10).ToArray();
             x[0] = 0;
             y[0] = 0;
+
+            // double[] x = { 0,-5.24022205511118,-0.930731944241902,-3.59301641285094,-9.73105812432759,6.24958465632498,7.5261992297723,4.5414743453923,7.45274882645009,-9.44871147137541};
+            // double[] y = { 0, -7.79274223269557, -6.1465665121314, -8.22453981182749, -9.93378678333656, 4.6244023901524, -0.336111509397677, -6.62758264533597, 9.03145583301385, 9.90241011600122 };
+
+            //double[] x = { 0, 5, 8, 4 }; 
+            //double[] y = { 0, 8, 2, 4 };
             //---
             z1 = chart1.Series.Add("Pradiniai kontūrai");
             z1.ChartType = SeriesChartType.Line;
@@ -57,7 +64,7 @@ namespace Optimizavimas
             for (int i = 0; i < x.Length; i++)
             {
                 p1.Points.AddXY(x[i], y[i]);
-                for (int u = i+1; u < x.Length; u++)
+                for (int u = i + 1; u < x.Length; u++)
                 {
                     z1.Points.AddXY(x[i], y[i]);
                     z1.Points.AddXY(x[u], y[u]);
@@ -70,9 +77,20 @@ namespace Optimizavimas
             p2.BorderWidth = 3;
             z2.BorderWidth = 1;
 
+            Stopwatch stopWatch = new Stopwatch();
+
+            stopWatch.Start();
+
             //Sprendimas
             Optimizacija(x, y, s);
+
+            stopWatch.Stop();
+            var laikas = stopWatch.ElapsedMilliseconds;
+
+            Debug.WriteLine(laikas);
+
         }
+
         public void PrintPoints(double[] x, double[] y)
         {
             z2.Points.Clear();
@@ -90,7 +108,7 @@ namespace Optimizavimas
             }
         }
 
-        private void Optimizacija(double[] x, double[] y, double s) 
+        private void Optimizacija(double[] x, double[] y, double s)
         {
             double eps = 1e-6;
             int maxIter = 500;
@@ -98,15 +116,15 @@ namespace Optimizavimas
             double tikslumas = Double.MaxValue;
             int iteracija = 0;
 
-            for (; iteracija < maxIter; iteracija++) 
+            for (; iteracija < maxIter; iteracija++)
             {
                 //printPoints(x, y);
-                double vid = Vidurkis(x, y);
                 int n = x.Length;
-                double[,] grad = Gradientas(x, y, vid, s);
+                double vid = Ilgis(x, y, 0, true) / (n * (n - 1) * 1 / 2);         //Parallel1  --TODO
+                double[,] grad = Gradientas(x, y, vid, s);               //Parallel2  ------DONE
                 double f0 = Tikslo(x, y, vid, s);
-                double[,] deltaX = Gradiento_norma(grad, zingsnis);
-                for(int u = 1; u < n; u++)
+                double[,] deltaX = Gradiento_norma(grad, zingsnis);      //Parallel3  --TODO
+                for (int u = 1; u < n; u++)                               //Parallel4  --TODO
                 {
                     x[u] -= deltaX[u, 0];
                     y[u] -= deltaX[u, 1];
@@ -114,18 +132,18 @@ namespace Optimizavimas
                 double f1 = Tikslo(x, y, vid, s);
                 if (f1 > f0)
                 {
-                    for (int u = 1; u < n; u++)
+                    for (int u = 1; u < n; u++)                          //Parallel4  --ref
                     {
                         x[u] += deltaX[u, 0];
                         y[u] += deltaX[u, 1];
                     }
                     zingsnis /= 2;
                 }
-                else 
+                else
                 {
                     zingsnis *= 2;
                 }
-                tikslumas = Math.Abs(f0-f1)/(Math.Abs(f0)+Math.Abs(f1));
+                tikslumas = Math.Abs(f0 - f1) / (Math.Abs(f0) + Math.Abs(f1));
                 if (tikslumas < eps)
                 {
                     richTextBox1.AppendText("Baigta sekmingai\n");
@@ -163,47 +181,38 @@ namespace Optimizavimas
             return copy;
         }
 
-        private double Vidurkis(double[] x, double[] y)
-        {
-            double n = x.Length;
-            double suma = 0;
-            int count = 0;
-            for (int i = 0; i < n; i++) 
-            {
-                for (int u = i + 1; u < n; u++) 
-                {
-                    suma += Math.Sqrt(Math.Pow(x[u]-x[i], 2) + Math.Pow(y[u] - y[i], 2));
-                    count++;
-                }
-            }
-            return suma / count;
-        }
-        private double Ilgis(double[] x, double[] y)
-        {
-            double n = x.Length;
-            double suma = 0;
-            for (int i = 0; i < n; i++)
-            {
-                for (int u = i + 1; u < n; u++)
-                {
-                    suma += Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2));
-                }
-            }
-            return suma;
-        }
-
         private double[,] Gradientas(double[] x, double[] y, double vid, double s)
         {
             int n = x.Length;
             double zingsnis = 0.0001;
-            double[,] grad = new double[n, 2]; 
+            double[,] grad = new double[n, 2];
             double f0 = Tikslo(x, y, vid, s);
 
+
+            var numbers = Enumerable.Range(0, n);
+
+
+            double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
+                              select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
+
+            double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
+                              select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
+
+
+            for (int i = 0; i < n; i++)
+            {
+                grad[i, 0] = gradX[i];
+                grad[i, 1] = gradY[i];
+            }
+            /*
+             
+            
             for (int i = 0; i < n; i++)
             {
                 grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
                 grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
             }
+            */
 
             return grad;
         }
@@ -217,18 +226,50 @@ namespace Optimizavimas
             return copy;
         }
 
-        private double Tikslo(double[] x, double[] y, double vid, double s)
+        private double SumaPagalPozymi(bool pozymis, double vid, double[] x, double[] y, int i, int u)
+        {
+            if (pozymis) return Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2));
+            else return Math.Pow(Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2)) - vid, 2);
+
+            /*
+            double suma = 0;
+            for (int u = i + 1; u < x.Length; u++)
+            {
+                if (pozymis) suma += Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2));
+                else suma += Math.Pow(Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2)) - vid, 2);
+            }
+            return suma;*/
+        }
+
+        private double Ilgis(double[] x, double[] y, double vid, bool pozymis)
         {
             int n = x.Length;
+            /*
+            int[] indexai = new int[n];
+            for (int i = 0; i < n; i++)
+            {
+                indexai[i] = i;
+            }
+
+            double[] suma = (from i in indexai.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
+                              select (SumaPagalPozymi(pozymis, vid, x, y, i))).ToArray();
+            */
+
             double suma = 0;
             for (int i = 0; i < n; i++)
             {
                 for (int u = i + 1; u < n; u++)
                 {
-                    suma += Math.Pow(Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2)) - vid, 2);
+                    suma += SumaPagalPozymi(pozymis, vid, x, y, i, u);
                 }
             }
-            return suma + Math.Abs(Ilgis(x, y) - s);
+
+            return suma;
+        }
+
+        private double Tikslo(double[] x, double[] y, double vid, double s)
+        {
+            return Ilgis(x, y, vid, false) + Math.Abs(Ilgis(x, y, vid, true) - s);
         }
 
         // ---------------------------------------------- KITI METODAI ----------------------------------------------
