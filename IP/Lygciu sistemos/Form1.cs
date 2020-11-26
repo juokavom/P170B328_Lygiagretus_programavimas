@@ -16,6 +16,7 @@ namespace Optimizavimas
 
     public partial class Form1 : Form
     {
+        public static int option;
 
         public Form1()
         {
@@ -29,14 +30,16 @@ namespace Optimizavimas
         private void Button3_Click(object sender, EventArgs e)
         {
             ClearForm1();
-            PreparareForm(-10, 10, -10, 10);
             //---
-            double s = 1900;
-            int count = 100;
+            double s = 20000;
+            int count = 10;
+            double[] X = { -10, 10 };
+            double[] Y = { -10, 10 };
             //---
             Random randNum = new Random();
-            double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * 20 - 10).ToArray();
-            double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * 20 - 10).ToArray();
+            PreparareForm((float)X[0], (float)X[1], (float)Y[0], (float)Y[1]);
+            double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (X[1] - X[0]) + X[0]).ToArray();
+            double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (Y[1] - Y[0]) + Y[0]).ToArray();
             x[0] = 0;
             y[0] = 0;
 
@@ -78,17 +81,24 @@ namespace Optimizavimas
             p2.BorderWidth = 3;
             z2.BorderWidth = 1;
 
-            Stopwatch stopWatch = new Stopwatch();
+            Stopwatch stopWatch;
 
-            stopWatch.Start();
+            double[] xnew = new double[x.Length];
+            double[] ynew = new double[y.Length];
 
-            //Sprendimas
-            Optimizacija(x, y, s);
-
-            stopWatch.Stop();
-            var laikas = stopWatch.ElapsedMilliseconds;
-
-            Debug.WriteLine(laikas);
+            for (int i = 1; i <= 12; i++)
+            {
+                option = i;
+                Array.Copy(x, xnew, x.Length);
+                Array.Copy(y, ynew, x.Length);
+                stopWatch = new Stopwatch();
+                stopWatch.Start();
+                //Sprendimas
+                Optimizacija(xnew, ynew, s);
+                stopWatch.Stop();
+                var laikas = stopWatch.ElapsedMilliseconds;
+                Debug.WriteLine(option + " " + laikas);
+            }           
 
         }
 
@@ -117,25 +127,11 @@ namespace Optimizavimas
             double tikslumas = Double.MaxValue;
             int iteracija = 0;
 
-            var gradientas = new List<double>();
-            var visi = new List<double>();
-
-            Stopwatch sw = new Stopwatch();
-            Stopwatch sw2 = new Stopwatch();
-
             for (; iteracija < maxIter; iteracija++)
             {
-                //printPoints(x, y);
-                sw.Start();
                 int n = x.Length;
                 double vid = Ilgis(x, y, 0, true) / (n * (n - 1) * 1 / 2);
-
-                sw2.Start();
-
                 double[,] grad = Gradientas(x, y, vid, s);  //Išlygiagretintas procesas, užimantis 99% laiko resursų
-
-                sw2.Stop();
-
                 double f0 = Tikslo(x, y, vid, s);
                 double[,] deltaX = Gradiento_norma(grad, zingsnis);
                 for (int u = 1; u < n; u++)
@@ -168,26 +164,9 @@ namespace Optimizavimas
                     richTextBox1.AppendText("Baigta nesekmingai\n");
                 }
                 richTextBox1.AppendText(string.Format("Iteracija: {0}, tikslumas: {1}, tikslo f-ija: {2, 0:F2}\n", iteracija, tikslumas, f1));
-                sw.Stop();
-
-                gradientas.Add(sw2.ElapsedMilliseconds);
-                visi.Add(sw.ElapsedMilliseconds);
-
-                sw.Reset();
-                sw2.Reset();
             }
             richTextBox1.AppendText(string.Format("Iteracijų skaičius = {0}, tikslumas = {1}\n", iteracija, tikslumas));
             PrintPoints(x, y);
-
-            double suma = 0;
-            for (int i = 0; i < visi.Count; i++)
-            {
-                double delta = 100*(visi[i] - gradientas[i]) / visi[i];
-                suma += delta;
-                Debug.WriteLine(string.Format("{0} {1}, Likusiu metodu delta = {2}%", visi[i], gradientas[i], delta));
-            }
-            Debug.WriteLine(string.Format("Likusiu metodu delta VIDURKIS = {0}%", suma / visi.Count));
-
         }
 
         private double[,] Gradiento_norma(double[,] gradientas, double zingsnis)
@@ -219,31 +198,32 @@ namespace Optimizavimas
             double[,] grad = new double[n, 2];
             double f0 = Tikslo(x, y, vid, s);
 
+            //if (option == 0)
+            //{
+                var numbers = Enumerable.Range(0, n);
+
+
+                double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(option)
+                                  select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
+
+                double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(option)
+                                  select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
+
+                for (int i = 0; i < n; i++)
+                {
+                    grad[i, 0] = gradX[i];
+                    grad[i, 1] = gradY[i];
+                }
+            //}
             /*
-            var numbers = Enumerable.Range(0, n);
-
-
-            double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
-                              select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
-
-            double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
-                              select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
-
-
-            for (int i = 0; i < n; i++)
+            else if (option == 1)
             {
-                grad[i, 0] = gradX[i];
-                grad[i, 1] = gradY[i];
-            }
-            */
-             
-            
-            for (int i = 0; i < n; i++)
-            {
-                grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
-                grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
-            }
-            
+                for (int i = 0; i < n; i++)
+                {
+                    grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
+                    grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
+                }
+            }*/
 
             return grad;
         }
