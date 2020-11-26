@@ -1,0 +1,45 @@
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.exe.config
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.exe
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.pdb
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\MathNet.Numerics.dll
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\MathNet.Numerics.xml
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csprojAssemblyReference.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.Properties.Resources.resources
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.GenerateResource.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CoreCompileInputs.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CopyComplete
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.exe
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.pdb
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.Form1.resources
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.exe
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.pdb
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.exe.config
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csprojAssemblyReference.cache
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.Form1.resources
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.Properties.Resources.resources
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.GenerateResource.cache
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CoreCompileInputs.cache
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.exe.config
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\MathNet.Numerics.dll
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\MathNet.Numerics.xml
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CopyComplete
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.exe
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.pdb
+C:\Users\Studies\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB2\Lygciu sistemos sprendimas\Lygciu sistemos\bin\Debug\PracticalGuideCharts.exe.config
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Lygciu sistemos.csprojAssemblyReference.cache
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.Form1.resources
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.Properties.Resources.resources
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.GenerateResource.cache
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CoreCompileInputs.cache
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.exe.config
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\MathNet.Numerics.dll
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\MathNet.Numerics.xml
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Lygciu sistemos.csproj.CopyComplete

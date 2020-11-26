@@ -1,0 +1,13 @@
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.exe.config
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\MathNet.Numerics.dll
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\bin\Debug\MathNet.Numerics.xml
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Optimizavimas.Form1.resources
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.Properties.Resources.resources
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Optimizavimas.csproj.GenerateResource.cache
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Optimizavimas.csproj.CoreCompileInputs.cache
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Optimizavimas.csproj.CopyComplete
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.exe
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Pvz1.pdb
+C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\IP\Lygciu sistemos\obj\Debug\Optimizavimas.csprojAssemblyReference.cache

@@ -1,0 +1,13 @@
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\bin\Debug\Pvz1.exe.config
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\bin\Debug\Pvz1.exe
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\bin\Debug\Pvz1.pdb
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\bin\Debug\MathNet.Numerics.dll
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\bin\Debug\MathNet.Numerics.xml
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Netiesines lygtys.csprojAssemblyReference.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Pvz1.Form1.resources
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Pvz1.Properties.Resources.resources
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Netiesines lygtys.csproj.GenerateResource.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Netiesines lygtys.csproj.CoreCompileInputs.cache
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Netiesines lygtys.csproj.CopyComplete
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Pvz1.exe
+C:\Users\Studijos\Desktop\Skaitiniai metodai ir algoritmai\repo\LAB1\Netiesines lygtys\Pvz1\obj\Debug\Pvz1.pdb
