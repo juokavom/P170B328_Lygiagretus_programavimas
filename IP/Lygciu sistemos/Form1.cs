@@ -3,6 +3,7 @@
 //Inžinerinis projektas - SMA II projektinės užduoties 3 dalis (optimizavimas - 7 var.)
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -116,15 +117,28 @@ namespace Optimizavimas
             double tikslumas = Double.MaxValue;
             int iteracija = 0;
 
+            var gradientas = new List<double>();
+            var visi = new List<double>();
+
+            Stopwatch sw = new Stopwatch();
+            Stopwatch sw2 = new Stopwatch();
+
             for (; iteracija < maxIter; iteracija++)
             {
                 //printPoints(x, y);
+                sw.Start();
                 int n = x.Length;
-                double vid = Ilgis(x, y, 0, true) / (n * (n - 1) * 1 / 2);         //Parallel1  --TODO
-                double[,] grad = Gradientas(x, y, vid, s);               //Parallel2  ------DONE
+                double vid = Ilgis(x, y, 0, true) / (n * (n - 1) * 1 / 2);
+
+                sw2.Start();
+
+                double[,] grad = Gradientas(x, y, vid, s);  //Išlygiagretintas procesas, užimantis 99% laiko resursų
+
+                sw2.Stop();
+
                 double f0 = Tikslo(x, y, vid, s);
-                double[,] deltaX = Gradiento_norma(grad, zingsnis);      //Parallel3  --TODO
-                for (int u = 1; u < n; u++)                               //Parallel4  --TODO
+                double[,] deltaX = Gradiento_norma(grad, zingsnis);
+                for (int u = 1; u < n; u++)
                 {
                     x[u] -= deltaX[u, 0];
                     y[u] -= deltaX[u, 1];
@@ -132,7 +146,7 @@ namespace Optimizavimas
                 double f1 = Tikslo(x, y, vid, s);
                 if (f1 > f0)
                 {
-                    for (int u = 1; u < n; u++)                          //Parallel4  --ref
+                    for (int u = 1; u < n; u++)
                     {
                         x[u] += deltaX[u, 0];
                         y[u] += deltaX[u, 1];
@@ -154,9 +168,26 @@ namespace Optimizavimas
                     richTextBox1.AppendText("Baigta nesekmingai\n");
                 }
                 richTextBox1.AppendText(string.Format("Iteracija: {0}, tikslumas: {1}, tikslo f-ija: {2, 0:F2}\n", iteracija, tikslumas, f1));
+                sw.Stop();
+
+                gradientas.Add(sw2.ElapsedMilliseconds);
+                visi.Add(sw.ElapsedMilliseconds);
+
+                sw.Reset();
+                sw2.Reset();
             }
             richTextBox1.AppendText(string.Format("Iteracijų skaičius = {0}, tikslumas = {1}\n", iteracija, tikslumas));
             PrintPoints(x, y);
+
+            double suma = 0;
+            for (int i = 0; i < visi.Count; i++)
+            {
+                double delta = 100*(visi[i] - gradientas[i]) / visi[i];
+                suma += delta;
+                Debug.WriteLine(string.Format("{0} {1}, Likusiu metodu delta = {2}%", visi[i], gradientas[i], delta));
+            }
+            Debug.WriteLine(string.Format("Likusiu metodu delta VIDURKIS = {0}%", suma / visi.Count));
+
         }
 
         private double[,] Gradiento_norma(double[,] gradientas, double zingsnis)
@@ -188,7 +219,7 @@ namespace Optimizavimas
             double[,] grad = new double[n, 2];
             double f0 = Tikslo(x, y, vid, s);
 
-
+            /*
             var numbers = Enumerable.Range(0, n);
 
 
@@ -204,7 +235,7 @@ namespace Optimizavimas
                 grad[i, 0] = gradX[i];
                 grad[i, 1] = gradY[i];
             }
-            /*
+            */
              
             
             for (int i = 0; i < n; i++)
@@ -212,7 +243,7 @@ namespace Optimizavimas
                 grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
                 grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
             }
-            */
+            
 
             return grad;
         }
@@ -230,31 +261,11 @@ namespace Optimizavimas
         {
             if (pozymis) return Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2));
             else return Math.Pow(Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2)) - vid, 2);
-
-            /*
-            double suma = 0;
-            for (int u = i + 1; u < x.Length; u++)
-            {
-                if (pozymis) suma += Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2));
-                else suma += Math.Pow(Math.Sqrt(Math.Pow(x[u] - x[i], 2) + Math.Pow(y[u] - y[i], 2)) - vid, 2);
-            }
-            return suma;*/
         }
 
         private double Ilgis(double[] x, double[] y, double vid, bool pozymis)
         {
             int n = x.Length;
-            /*
-            int[] indexai = new int[n];
-            for (int i = 0; i < n; i++)
-            {
-                indexai[i] = i;
-            }
-
-            double[] suma = (from i in indexai.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(12)
-                              select (SumaPagalPozymi(pozymis, vid, x, y, i))).ToArray();
-            */
-
             double suma = 0;
             for (int i = 0; i < n; i++)
             {
@@ -263,7 +274,6 @@ namespace Optimizavimas
                     suma += SumaPagalPozymi(pozymis, vid, x, y, i, u);
                 }
             }
-
             return suma;
         }
 
