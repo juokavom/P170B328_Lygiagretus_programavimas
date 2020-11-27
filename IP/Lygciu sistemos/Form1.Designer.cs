@@ -38,7 +38,10 @@ namespace Optimizavimas
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // chart1
@@ -92,7 +95,7 @@ namespace Optimizavimas
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(1845, 262);
+            this.button3.Location = new System.Drawing.Point(1845, 74);
             this.button3.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(416, 55);
@@ -101,11 +104,46 @@ namespace Optimizavimas
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Button3_Click);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.listBox1);
+            this.groupBox1.Location = new System.Drawing.Point(1845, 162);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(431, 434);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Taškų skaičius";
+            // 
+            // listBox1
+            // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 31;
+            this.listBox1.Items.AddRange(new object[] {
+            "3",
+            "5",
+            "10",
+            "25",
+            "50",
+            "75",
+            "100",
+            "125",
+            "150",
+            "175"});
+            this.listBox1.Location = new System.Drawing.Point(64, 67);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(71, 314);
+            this.listBox1.TabIndex = 1;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.Button3_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2288, 1617);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -115,6 +153,7 @@ namespace Optimizavimas
             this.Name = "Form1";
             this.Text = "Lygiagretus programavimas | IP | Jokūbas Akramas";
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -165,6 +204,8 @@ namespace Optimizavimas
         private Button button1;
         private Button button2;
         private Button button3;
+        private GroupBox groupBox1;
+        private ListBox listBox1;
     }
 
 

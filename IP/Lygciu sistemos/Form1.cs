@@ -17,7 +17,7 @@ namespace Optimizavimas
 
     public partial class Form1 : Form
     {
-        public static int option;
+        public static int ThreadCount;
 
         public Form1()
         {
@@ -30,49 +30,22 @@ namespace Optimizavimas
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            //3,5,10,25,50,75,100,125,150,175
-            ClearForm1();
             //---
-            double s = 90000000;
-            int count = 175;
+            int rinkinys = 1 + listBox1.SelectedIndex; // x e [1; 10]
+            int maxThreads = 12;
+            int kartojimaiVidurkiui = 5;
+            //---
             double[] X = { -10, 10 };
             double[] Y = { -10, 10 };
-            //---
-            //---
+            //---            
+            ClearForm1();
             PreparareForm((float)X[0], (float)X[1], (float)Y[0], (float)Y[1]);
-            
-            Random randNum = new Random();
-            double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (X[1] - X[0]) + X[0]).ToArray();
-            double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (Y[1] - Y[0]) + Y[0]).ToArray();
-            x[0] = 0;
-            y[0] = 0;
-            
-            
-            string message1 = "\n";
-            string message2 = "\n";
-            for (int i = 0; i < x.Length; i++)
-            {
-                message1 += x[i];
-                message2 += y[i];
-                if (i + 1 != x.Length)
-                {
-                    message1 += ",";
-                    message2 += ",";
-                }
-            }
-            var mainMessage = s + message1 + message2;
-            File.WriteAllText(@"../../Data/10.txt", mainMessage);
-            
-            Dots dots = new Dots(10);
-            Debug.WriteLine(dots.ToString());
-            Debug.WriteLine("");
             //---
-            x = dots.x;
-            y = dots.y;
-            s = dots.S;
-            
+            Dots dots = new Dots(rinkinys);
+            double[] x = dots.x;
+            double[] y = dots.y;
+            double s = dots.S;
             //---
-
             z1 = chart1.Series.Add("Pradiniai kontūrai");
             z1.ChartType = SeriesChartType.Line;
             z1.Color = Color.Blue;
@@ -104,26 +77,49 @@ namespace Optimizavimas
             p1.BorderWidth = 3;
             p2.BorderWidth = 3;
             z2.BorderWidth = 1;
-
-            Stopwatch stopWatch;
-
+            //---
+            Stopwatch stopWatch = new Stopwatch();
+            string line45 = new string('-', 45);
+            string line92 = new string('-', 92);
+            //---
             double[] xnew = new double[x.Length];
             double[] ynew = new double[y.Length];
-
-            for (int i = 12; i <= 12; i++)
+            double[] benchmarkData = new double[maxThreads];
+            //---
+            richTextBox1.AppendText(string.Format("Rinkinio dydis = {0}\n", dots.x.Length));
+            richTextBox1.AppendText(line45 + "\n");
+            for (int i = 1; i <= maxThreads; i++)
             {
-                option = i;
-                Array.Copy(x, xnew, x.Length);
-                Array.Copy(y, ynew, x.Length);
-                stopWatch = new Stopwatch();
-                stopWatch.Start();
-                //Sprendimas
-                Optimizacija(xnew, ynew, s);
-                stopWatch.Stop();
-                var laikas = stopWatch.ElapsedMilliseconds;
-                Debug.WriteLine(option + " " + laikas);
-            }           
-            
+                richTextBox1.AppendText(line45 + "\n");
+                ThreadCount = i;
+                double suma = 0;
+                for (int u = 0; u < kartojimaiVidurkiui; u++)
+                {
+                    //---
+                    Array.Copy(x, xnew, x.Length);
+                    Array.Copy(y, ynew, y.Length);
+                    //---
+                    stopWatch.Start();
+                    Optimizacija(xnew, ynew, s);
+                    stopWatch.Stop();
+                    //---
+                    double ms = stopWatch.ElapsedMilliseconds;
+                    suma += ms;
+                    richTextBox1.AppendText(string.Format("Procesas: {0}, laikas: {1}, kartojimas: {2}/{3}\n", i, ms, u+1, kartojimaiVidurkiui));
+                    stopWatch.Reset();
+                }
+                benchmarkData[i - 1] = suma / kartojimaiVidurkiui;
+            }
+            richTextBox1.AppendText(line92 + "\n");
+            richTextBox1.AppendText(line92 + "\n");
+            //---
+            for (int i = 0; i < benchmarkData.Length; i++)
+            {
+                richTextBox1.AppendText(string.Format("Procesų skaičius = {0}, Vidutinis laikas = {1}\n", i + 1, benchmarkData[i]));
+            }
+            //---
+            richTextBox1.AppendText(line92 + "\n");
+            richTextBox1.AppendText(line92 + "\n");
         }
 
         public void PrintPoints(double[] x, double[] y)
@@ -180,16 +176,9 @@ namespace Optimizavimas
                 tikslumas = Math.Abs(f0 - f1) / (Math.Abs(f0) + Math.Abs(f1));
                 if (tikslumas < eps)
                 {
-                    richTextBox1.AppendText("Baigta sekmingai\n");
                     break;
                 }
-                else if (iteracija == maxIter - 1)
-                {
-                    richTextBox1.AppendText("Baigta nesekmingai\n");
-                }
-                richTextBox1.AppendText(string.Format("Iteracija: {0}, tikslumas: {1}, tikslo f-ija: {2, 0:F2}\n", iteracija, tikslumas, f1));
             }
-            richTextBox1.AppendText(string.Format("Iteracijų skaičius = {0}, tikslumas = {1}\n", iteracija, tikslumas));
             PrintPoints(x, y);
         }
 
@@ -222,23 +211,20 @@ namespace Optimizavimas
             double[,] grad = new double[n, 2];
             double f0 = Tikslo(x, y, vid, s);
 
-            //if (option == 0)
-            //{
-                var numbers = Enumerable.Range(0, n);
+            var numbers = Enumerable.Range(0, n);
 
 
-                double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(option)
-                                  select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
+            double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
+                              select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
 
-                double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(option)
-                                  select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
+            double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
+                              select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
 
-                for (int i = 0; i < n; i++)
-                {
-                    grad[i, 0] = gradX[i];
-                    grad[i, 1] = gradY[i];
-                }
-            //}
+            for (int i = 0; i < n; i++)
+            {
+                grad[i, 0] = gradX[i];
+                grad[i, 1] = gradY[i];
+            }
             /*
             else if (option == 1)
             {
@@ -285,6 +271,8 @@ namespace Optimizavimas
         {
             return Ilgis(x, y, vid, false) + Math.Abs(Ilgis(x, y, vid, true) - s);
         }
+
+
 
         // ---------------------------------------------- KITI METODAI ----------------------------------------------
 

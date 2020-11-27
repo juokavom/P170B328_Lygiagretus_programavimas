@@ -120,9 +120,15 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Data\1.txt" />
+    <Content Include="Data\10.txt" />
     <Content Include="Data\2.txt" />
     <Content Include="Data\3.txt" />
     <Content Include="Data\4.txt" />
+    <Content Include="Data\5.txt" />
+    <Content Include="Data\6.txt" />
+    <Content Include="Data\7.txt" />
+    <Content Include="Data\8.txt" />
+    <Content Include="Data\9.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
