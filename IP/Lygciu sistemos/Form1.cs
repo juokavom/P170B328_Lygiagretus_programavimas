@@ -41,10 +41,6 @@ namespace Optimizavimas
             ClearForm1();
             PreparareForm((float)X[0], (float)X[1], (float)Y[0], (float)Y[1]);
             //---
-            Dots dots = new Dots(rinkinys);
-            double[] x = dots.x;
-            double[] y = dots.y;
-            double s = dots.S;
             //---
             z1 = chart1.Series.Add("Pradiniai kontūrai");
             z1.ChartType = SeriesChartType.Line;
@@ -62,21 +58,23 @@ namespace Optimizavimas
             p2.ChartType = SeriesChartType.Point;
             p2.Color = Color.Green;
             //---
-            for (int i = 0; i < x.Length; i++)
-            {
-                p1.Points.AddXY(x[i], y[i]);
-                for (int u = i + 1; u < x.Length; u++)
-                {
-                    z1.Points.AddXY(x[i], y[i]);
-                    z1.Points.AddXY(x[u], y[u]);
-                    p1.Points.AddXY(x[u], y[u]);
-                    z1.Points.AddXY(x[i], y[i]);
-                }
-            }
+            //---
             z1.BorderWidth = 1;
             p1.BorderWidth = 3;
             p2.BorderWidth = 3;
             z2.BorderWidth = 1;
+            //---
+            GreitaveikosTyrimas(rinkinys, maxThreads, kartojimaiVidurkiui);
+        }
+
+        private void GreitaveikosTyrimas(int rinkinys, int maxThreads, int kartojimaiVidurkiui)
+        {
+            Dots dots = new Dots(rinkinys);
+            double[] x = dots.x;
+            double[] y = dots.y;
+            double s = dots.S;
+            //---            
+            PrintPoints(x, y, z1, p1);
             //---
             Stopwatch stopWatch = new Stopwatch();
             string line45 = new string('-', 45);
@@ -122,19 +120,19 @@ namespace Optimizavimas
             richTextBox1.AppendText(line92 + "\n");
         }
 
-        public void PrintPoints(double[] x, double[] y)
+        public void PrintPoints(double[] x, double[] y, Series z, Series p)
         {
-            z2.Points.Clear();
-            p2.Points.Clear();
+            z.Points.Clear();
+            p.Points.Clear();
             for (int i = 0; i < x.Length; i++)
             {
-                p1.Points.AddXY(x[i], y[i]);
+                p.Points.AddXY(x[i], y[i]);
                 for (int u = i + 1; u < x.Length; u++)
                 {
-                    z2.Points.AddXY(x[i], y[i]);
-                    z2.Points.AddXY(x[u], y[u]);
-                    p2.Points.AddXY(x[u], y[u]);
-                    z2.Points.AddXY(x[i], y[i]);
+                    z.Points.AddXY(x[i], y[i]);
+                    z.Points.AddXY(x[u], y[u]);
+                    p.Points.AddXY(x[u], y[u]);
+                    z.Points.AddXY(x[i], y[i]);
                 }
             }
         }
@@ -179,7 +177,7 @@ namespace Optimizavimas
                     break;
                 }
             }
-            PrintPoints(x, y);
+            PrintPoints(x, y, z2, p2);
         }
 
         private double[,] Gradiento_norma(double[,] gradientas, double zingsnis)
