@@ -67,13 +67,21 @@ namespace Optimizavimas
             GreitaveikosTyrimas(rinkinys, maxThreads, kartojimaiVidurkiui);
         }
 
+        /// <summary>
+        /// Programos entry point nuo vartotojo lango
+        /// </summary>
+        /// <param name="rinkinys">Pasirinkto rinkinio numeris</param>
+        /// <param name="maxThreads">Maksimalių gijų skaičius tyrime</param>
+        /// <param name="kartojimaiVidurkiui">Kartojimų skaičius matavimų vidurkiui išvesti</param>
         private void GreitaveikosTyrimas(int rinkinys, int maxThreads, int kartojimaiVidurkiui)
         {
+            //Sukuriamas taškų objektas pagal vartotojo pasirinktą rinkinio dydį
             Dots dots = new Dots(rinkinys);
             double[] x = dots.x;
             double[] y = dots.y;
             double s = dots.S;
             //---            
+            //Brėžiama pradinė taškų seka
             PrintPoints(x, y, z1, p1);
             //---
             Stopwatch stopWatch = new Stopwatch();
@@ -86,24 +94,28 @@ namespace Optimizavimas
             //---
             richTextBox1.AppendText(string.Format("Rinkinio dydis = {0}\n", dots.x.Length));
             richTextBox1.AppendText(line45 + "\n");
+            //Sukamas ciklas kiekvienam kiekiui procesų
             for (int i = 1; i <= maxThreads; i++)
             {
                 richTextBox1.AppendText(line45 + "\n");
                 ThreadCount = i;
                 double suma = 0;
+                //Kiekvienam procesui skaičiavimai kartojami kelis kartus, pagal šį ciklą
                 for (int u = 0; u < kartojimaiVidurkiui; u++)
                 {
                     //---
                     Array.Copy(x, xnew, x.Length);
                     Array.Copy(y, ynew, y.Length);
-                    //---
+                    //---                    
+                    //Kviečiamas uždavinio sprendimo metodas ir matuojamas atlikimo laikas
                     stopWatch.Start();
                     Optimizacija(xnew, ynew, s);
                     stopWatch.Stop();
                     //---
+                    //Laiko reikšmė atspausdinama į ekraną ir išsaugojama vidurkiui išvesti
                     double ms = stopWatch.ElapsedMilliseconds;
                     suma += ms;
-                    richTextBox1.AppendText(string.Format("Procesas: {0}, laikas: {1}, kartojimas: {2}/{3}\n", i, ms, u+1, kartojimaiVidurkiui));
+                    richTextBox1.AppendText(string.Format("Procesas: {0}, laikas: {1}, kartojimas: {2}/{3}\n", i, ms, u + 1, kartojimaiVidurkiui));
                     stopWatch.Reset();
                 }
                 benchmarkData[i - 1] = suma / kartojimaiVidurkiui;
@@ -111,6 +123,7 @@ namespace Optimizavimas
             richTextBox1.AppendText(line92 + "\n");
             richTextBox1.AppendText(line92 + "\n");
             //---
+            //Išvedama duomenų rinkinio greitaveikos informacija pagal panaudotų gijų skaičių
             for (int i = 0; i < benchmarkData.Length; i++)
             {
                 richTextBox1.AppendText(string.Format("Procesų skaičius = {0}, Vidutinis laikas = {1}\n", i + 1, benchmarkData[i]));
@@ -120,44 +133,42 @@ namespace Optimizavimas
             richTextBox1.AppendText(line92 + "\n");
         }
 
-        public void PrintPoints(double[] x, double[] y, Series z, Series p)
-        {
-            z.Points.Clear();
-            p.Points.Clear();
-            for (int i = 0; i < x.Length; i++)
-            {
-                p.Points.AddXY(x[i], y[i]);
-                for (int u = i + 1; u < x.Length; u++)
-                {
-                    z.Points.AddXY(x[i], y[i]);
-                    z.Points.AddXY(x[u], y[u]);
-                    p.Points.AddXY(x[u], y[u]);
-                    z.Points.AddXY(x[i], y[i]);
-                }
-            }
-        }
-
+        /// <summary>
+        /// Pagrindinis uždavinio sprendimo metodas
+        /// </summary>
+        /// <param name="x">Abscisių reikšmių vektorius</param>
+        /// <param name="y">Oordinačių reikšmių vektorius</param>
+        /// <param name="s">Užduoties argumentas S</param>
         private void Optimizacija(double[] x, double[] y, double s)
         {
+            //Pradiniai duomenys skaičiavimams (tikslumas, iteracijų sk., zingsnis, ir t.t.)
             double eps = 1e-6;
             int maxIter = 500;
             double zingsnis = 0.1;
-            double tikslumas = Double.MaxValue;
+            double tikslumas;
             int iteracija = 0;
 
+            //Iteracinis ciklas tolimesnėms reikšmėms skaičiuoti
             for (; iteracija < maxIter; iteracija++)
             {
                 int n = x.Length;
+                //Vidutinio atstumo tarp taškų radimas
                 double vid = Ilgis(x, y, 0, true) / (n * (n - 1) * 1 / 2);
-                double[,] grad = Gradientas(x, y, vid, s);  //Išlygiagretintas procesas, užimantis 99% laiko resursų
+                //Išlygiagretintas metodas, užimantis 99% laiko resursų
+                double[,] grad = Gradientas(x, y, vid, s);
+                //Tikslo funkcijos apskaičiavimas esamame taške
                 double f0 = Tikslo(x, y, vid, s);
+                //Gradiento normalės radimas
                 double[,] deltaX = Gradiento_norma(grad, zingsnis);
+                //Ėjimas prieš gradiento kryptį, t.y tikslo funkcijos mažėjimo kryptimi
                 for (int u = 1; u < n; u++)
                 {
                     x[u] -= deltaX[u, 0];
                     y[u] -= deltaX[u, 1];
                 }
+                //Tikslo funkcijos apskaičiavimas sekančiame taške
                 double f1 = Tikslo(x, y, vid, s);
+                //Jei tikslo funkcija padidėjo, grįžtama į buvusį tašką (eil. 174-178) ir mažinamas žingsnis (eil. 179)
                 if (f1 > f0)
                 {
                     for (int u = 1; u < n; u++)
@@ -167,17 +178,67 @@ namespace Optimizavimas
                     }
                     zingsnis /= 2;
                 }
+                //Jei tikslo funkcija sumažėjo (to siekiame), žingsnis padvigubinamas
                 else
                 {
                     zingsnis *= 2;
                 }
+                //Apskaičiuojamas tikslumas
                 tikslumas = Math.Abs(f0 - f1) / (Math.Abs(f0) + Math.Abs(f1));
+                //Jei tikslumas atitinka nurodytą, ciklas užbaigiamas
                 if (tikslumas < eps)
                 {
                     break;
                 }
             }
+            //Brėžiama gauta taškų seka
             PrintPoints(x, y, z2, p2);
+        }
+
+        /// <summary>
+        /// Išlygiagretintas metodas, užimantis 99% laiko resursų
+        /// </summary>
+        /// <param name="x">Abscisių reikšmių vektorius</param>
+        /// <param name="y">Oordinačių reikšmių vektorius</param>
+        /// <param name="vid">Vidutinis atstumas tarp taškų</param>
+        /// <param name="s">Užduoties argumentas S</param>
+        /// <returns></returns>
+        private double[,] Gradientas(double[] x, double[] y, double vid, double s)
+        {
+            //Pradiniai duomenys skaičiavimams
+            int n = x.Length;
+            double zingsnis = 0.0001;
+            double[,] grad = new double[n, 2];
+            //Tikslo funkcija esamame taške
+            double f0 = Tikslo(x, y, vid, s);
+            //---
+            var numbers = Enumerable.Range(0, n);
+            //---
+            //Lygiagretinti metodai
+            //Gradiento skaičiavimas abscisių ašies atžvilgiu
+            double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
+                              select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
+            //Gradiento skaičiavimas oordinačių ašies atžvilgiu
+            double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
+                              select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
+            //---
+            //Abscisės ir oordinatės sujungiamos į matricą
+            for (int i = 0; i < n; i++)
+            {
+                grad[i, 0] = gradX[i];
+                grad[i, 1] = gradY[i];
+            }
+
+            //Originaliai taikytas sprendimo būdas prieš pradedant taikyti lygiagretų sprendimą (eil. 217-230)
+            /* 
+            for (int i = 0; i < n; i++)
+            {
+                grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
+                grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
+            }
+            */
+
+            return grad;
         }
 
         private double[,] Gradiento_norma(double[,] gradientas, double zingsnis)
@@ -202,40 +263,23 @@ namespace Optimizavimas
             return copy;
         }
 
-        private double[,] Gradientas(double[] x, double[] y, double vid, double s)
+
+        public void PrintPoints(double[] x, double[] y, Series z, Series p)
         {
-            int n = x.Length;
-            double zingsnis = 0.0001;
-            double[,] grad = new double[n, 2];
-            double f0 = Tikslo(x, y, vid, s);
-
-            var numbers = Enumerable.Range(0, n);
-
-
-            double[] gradX = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
-                              select ((Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis)).ToArray();
-
-            double[] gradY = (from i in numbers.AsParallel().AsOrdered().WithMergeOptions(ParallelMergeOptions.NotBuffered).WithDegreeOfParallelism(ThreadCount)
-                              select ((Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis)).ToArray();
-
-            for (int i = 0; i < n; i++)
+            z.Points.Clear();
+            p.Points.Clear();
+            for (int i = 0; i < x.Length; i++)
             {
-                grad[i, 0] = gradX[i];
-                grad[i, 1] = gradY[i];
-            }
-            /*
-            else if (option == 1)
-            {
-                for (int i = 0; i < n; i++)
+                p.Points.AddXY(x[i], y[i]);
+                for (int u = i + 1; u < x.Length; u++)
                 {
-                    grad[i, 0] = (Tikslo(F1(x, i, zingsnis), y, vid, s) - f0) / zingsnis;
-                    grad[i, 1] = (Tikslo(x, F1(y, i, zingsnis), vid, s) - f0) / zingsnis;
+                    z.Points.AddXY(x[i], y[i]);
+                    z.Points.AddXY(x[u], y[u]);
+                    p.Points.AddXY(x[u], y[u]);
+                    z.Points.AddXY(x[i], y[i]);
                 }
-            }*/
-
-            return grad;
+            }
         }
-
         private double[] F1(double[] a, int i, double zing)
         {
             int n = a.Length;
