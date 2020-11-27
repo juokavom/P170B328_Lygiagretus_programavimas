@@ -188,7 +188,12 @@ namespace Optimizavimas
                 //Jei tikslumas atitinka nurodytą, ciklas užbaigiamas
                 if (tikslumas < eps)
                 {
+                    richTextBox1.AppendText("Baigta sekmingai\n");
                     break;
+                }
+                else if (iteracija == maxIter - 1)
+                {
+                    richTextBox1.AppendText("Baigta nesekmingai\n");
                 }
             }
             //Brėžiama gauta taškų seka
