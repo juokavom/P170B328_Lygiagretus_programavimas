@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -29,26 +30,49 @@ namespace Optimizavimas
 
         private void Button3_Click(object sender, EventArgs e)
         {
+            //3,5,10,25,50,75,100,125,150,175
             ClearForm1();
             //---
-            double s = 20000;
-            int count = 10;
+            double s = 90000000;
+            int count = 175;
             double[] X = { -10, 10 };
             double[] Y = { -10, 10 };
             //---
-            Random randNum = new Random();
+            //---
             PreparareForm((float)X[0], (float)X[1], (float)Y[0], (float)Y[1]);
+            
+            Random randNum = new Random();
             double[] x = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (X[1] - X[0]) + X[0]).ToArray();
             double[] y = Enumerable.Repeat(0, count).Select(i => randNum.NextDouble() * (Y[1] - Y[0]) + Y[0]).ToArray();
             x[0] = 0;
             y[0] = 0;
-
-            // double[] x = { 0,-5.24022205511118,-0.930731944241902,-3.59301641285094,-9.73105812432759,6.24958465632498,7.5261992297723,4.5414743453923,7.45274882645009,-9.44871147137541};
-            // double[] y = { 0, -7.79274223269557, -6.1465665121314, -8.22453981182749, -9.93378678333656, 4.6244023901524, -0.336111509397677, -6.62758264533597, 9.03145583301385, 9.90241011600122 };
-
-            //double[] x = { 0, 5, 8, 4 }; 
-            //double[] y = { 0, 8, 2, 4 };
+            
+            
+            string message1 = "\n";
+            string message2 = "\n";
+            for (int i = 0; i < x.Length; i++)
+            {
+                message1 += x[i];
+                message2 += y[i];
+                if (i + 1 != x.Length)
+                {
+                    message1 += ",";
+                    message2 += ",";
+                }
+            }
+            var mainMessage = s + message1 + message2;
+            File.WriteAllText(@"../../Data/10.txt", mainMessage);
+            
+            Dots dots = new Dots(10);
+            Debug.WriteLine(dots.ToString());
+            Debug.WriteLine("");
             //---
+            x = dots.x;
+            y = dots.y;
+            s = dots.S;
+            
+            //---
+
             z1 = chart1.Series.Add("Pradiniai kontūrai");
             z1.ChartType = SeriesChartType.Line;
             z1.Color = Color.Blue;
@@ -86,7 +110,7 @@ namespace Optimizavimas
             double[] xnew = new double[x.Length];
             double[] ynew = new double[y.Length];
 
-            for (int i = 1; i <= 12; i++)
+            for (int i = 12; i <= 12; i++)
             {
                 option = i;
                 Array.Copy(x, xnew, x.Length);
@@ -99,7 +123,7 @@ namespace Optimizavimas
                 var laikas = stopWatch.ElapsedMilliseconds;
                 Debug.WriteLine(option + " " + laikas);
             }           
-
+            
         }
 
         public void PrintPoints(double[] x, double[] y)
