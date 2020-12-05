@@ -13,18 +13,6 @@
   <ItemGroup>
     <CudaCompile Include="main.cu" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="nlohmann.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Data\IFF8-12_AkramasJ_L1_dat_1.json" />
-    <None Include="Data\IFF8-12_AkramasJ_L1_dat_2.json" />
-    <None Include="Data\IFF8-12_AkramasJ_L1_dat_3.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Data\test.txt" />
-    <Text Include="failas.txt" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F96497B7-4480-44E5-9264-2A0FE46E1793}</ProjectGuid>
     <RootNamespace>Lab3</RootNamespace>

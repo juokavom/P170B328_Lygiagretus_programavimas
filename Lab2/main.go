@@ -1,7 +1,6 @@
 package main
 
 import (
-	DM "./DataMonitor"
 	IT "./Item"
 	"fmt"
 	"log"
@@ -9,17 +8,17 @@ import (
 )
 
 func main() {
-	mainData := make(chan IT.Item)
+/*	mainData := make(chan IT.Item)
 	mainFlagData := make(chan int)
 	dataWorker := make(chan IT.Item)
 	dataFlagWorker := make(chan int)
 	workerResult := make(chan IT.ItemWithResult)
 	resultMain := make(chan []IT.ItemWithResult)
-
+*/
 	//1. Nuskaito duomenu faila i lokalu masyva
 	items := IT.ReadData("Data/IFF8-12_AkramasJ_L1_dat_1.json")
 	//Giju skaicius : 2 <= x <= n/4 (n = 30)
-	threadCount := 6
+	/*threadCount := 6
 	//2. Paleidzia pasirinkta kieki giju
 	for i := 0; i < threadCount; i++ {
 		go DM.WorkProcess(dataWorker, dataFlagWorker,workerResult)
@@ -33,7 +32,7 @@ func main() {
 	//4. Sulaukia rezultatu is rezultatu proceso
 	results := <- resultMain
 	//5. Atfiltruotus rezultatus isveda i tekstini faila
-	WriteData("Data/IFF8-12_AkramasJ_L1_rez.txt", results)
+	WriteData("Data/IFF8-12_AkramasJ_L1_rez.txt", results)*/
 }
 
 func WriteData(fileName string, results []IT.ItemWithResult) {
