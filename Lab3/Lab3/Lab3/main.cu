@@ -72,6 +72,14 @@ public:
 		}
 		return max + 1; //FORMATAS: 'TITLE-value '
 	}
+
+	void parseData(string* title, int *quantity, float *price) {
+		for (int i = 0; i < size(); i++) {
+			title[i] = ItemArray[i].Title;
+			quantity[i] = ItemArray[i].Quantity;
+			price[i] = ItemArray[i].Price;
+		}
+	}
 };
 
 Items* readItems(string file) {
@@ -102,8 +110,8 @@ Items* readItems(string file) {
 	return items;
 }
 
-__global__ void run_on_gpu(Item* ItemArray, char* results, int* size, unsigned int* count);
-__device__ float calculateValue(Item* item);
+__global__ void run_on_gpu(int* quantity, float* price, char* results, int* size, unsigned int* count);
+__device__ float calculateValue(int quantity, float price);
 
 int main() {
 	int gijuKiekis = 7;
@@ -111,27 +119,35 @@ int main() {
 	//---RAM kintamieji
 	Items *items = readItems(fileName);
 	int sector_size = items->maxCharSize();
-	int resultSize = sizeof(char) * sector_size * 30;
-	auto *results = malloc(resultSize);
 	int size = items->size();
+	//---
+	string title[30];
+	int quantity[30];
+	float price[30];
+	items->parseData(title, quantity, price);
+	int resultSize = sizeof(char) * sector_size * size;
+	auto *results = malloc(resultSize);
 	unsigned int count = 0;
 	//---VRAM kintamieji
-	Item* cuda_items;
+	int* cuda_quantity;
+	float* cuda_price;
 	char *cuda_results;
 	int* cuda_size;
 	unsigned int *cuda_count;
 	//---
-	cudaMalloc(&cuda_items, sizeof(Items));
+	cudaMalloc(&cuda_quantity, sizeof(int)*size);
+	cudaMalloc(&cuda_price, sizeof(float)*size);
 	cudaMalloc(&cuda_results, resultSize);
 	cudaMalloc(&cuda_size, sizeof(int));
 	cudaMalloc(&cuda_count, sizeof(unsigned int));
 	//---
-	cudaMemcpy(cuda_items, items->ItemArray, sizeof(Items), cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_quantity, quantity, sizeof(int) * size, cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_price, price, sizeof(float) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_results, results, resultSize, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_size, &size, sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_count, &count, sizeof(unsigned int), cudaMemcpyHostToDevice);
 	//---
-	run_on_gpu << <1, gijuKiekis >> > (cuda_items, cuda_results, cuda_size, cuda_count); //Paleidzia gijas
+	run_on_gpu << <1, gijuKiekis >> > (cuda_quantity, cuda_price, cuda_results, cuda_size, cuda_count); //Paleidzia gijas
 	//---
 	cudaDeviceSynchronize(); //Palaukti visu giju
 	//---
@@ -144,7 +160,8 @@ int main() {
 	//---
 	delete(items);
 	free(results);
-	cudaFree(cuda_items);
+	cudaFree(cuda_quantity);
+	cudaFree(cuda_price);
 	cudaFree(cuda_results);
 	cudaFree(cuda_size);
 	cudaFree(cuda_count);
@@ -152,27 +169,23 @@ int main() {
 	cout << "Finished" << endl;
 }
 
-__global__ void run_on_gpu(Item* ItemArray, char *results, int *size, unsigned int *count) {
+__global__ void run_on_gpu(int* quantity, float* price, char *results, int *size, unsigned int *count) {
 	int slice_size = *size / blockDim.x;
 	//---
 	int start_index = slice_size * threadIdx.x;
 	int end_index = (threadIdx.x == blockDim.x - 1)? *size : slice_size * (threadIdx.x + 1);
 	//---
 	for (int i = start_index; i < end_index; i++) {
-		float result = calculateValue(&ItemArray[i]);
+		float result = calculateValue(quantity[i], price[i]);
 		if (result > 0.5f) {
 			atomicAdd(count, 1);
 		}
 	}
 }
 
-__device__ float calculateValue(Item* item) {
+__device__ float calculateValue(int quantity, float price) {
 	//---
 	/*
-	string Title = item->Title;
-	int Quantity = item->Quantity;
-	float Price = item->Price;
-	//---
 	vector<char> bytes(Title.begin(), Title.end());
 	int stringValues = 0;
 	for (char i : bytes) {
