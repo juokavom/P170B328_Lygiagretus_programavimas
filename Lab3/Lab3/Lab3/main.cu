@@ -11,8 +11,8 @@
 using namespace std; 
 
 
-__global__ void run_on_gpu();
-__device__ void execute(const char* name);
+//__global__ void run_on_gpu(Items* data, Items* results, int* size);
+//__device__ void execute();
 
 class Item {
 public:
@@ -34,6 +34,28 @@ public:
 		std::string buffAsStdStr = buff;
 		return buffAsStdStr;
 	}
+
+	float calculateValue() {
+		vector<char> bytes(Title.begin(), Title.end());
+		int stringValues = 0;
+		for (char i : bytes) {
+			stringValues += i;
+		}
+		int temp = stringValues ^ Quantity;
+		float finalV = temp * Price;
+		return finalV;
+	}
+
+	int outputSize() {
+		return Title.size() + 1 + to_string(calculateValue()).size();
+	}
+	
+	string ToStringWithValue() {
+		char buff[100];
+		snprintf(buff, sizeof(buff), "|%s %f|\n", Title.c_str(), calculateValue());
+		std::string buffAsStdStr = buff;
+		return buffAsStdStr;
+	}
 };
 
 class Items {
@@ -42,6 +64,15 @@ public:
 
 	int size() {
 		return sizeof(ItemArray) / sizeof(ItemArray[0]);
+	}
+
+	int maxCharSize(){
+		int max = ItemArray[0].outputSize();
+		for (int i = 1; i < size(); i++) {
+			int isize = ItemArray[i].outputSize();
+			max = isize > max ? isize : max;
+		}
+		return max + 1; //FORMATAS: 'TITLE-value '
 	}
 };
 
@@ -76,27 +107,61 @@ Items* readItems(string file) {
 int main() {
 	int gijuKiekis = 7;
 	string fileName = "Data/IFF8-12_AkramasJ_L1_dat_1.txt";	
-	auto items = readItems(fileName);
-	cout << sizeof(Items) << endl;
+	//---RAM kintamieji
+	Items *items = readItems(fileName);
+	cout << items->maxCharSize();
+	//string *results = new Items();
+	int size = items->size();
+	int count = 0;
+	//---VRAM kintamieji
+	Items *cuda_items, *cuda_results;
+	int *cuda_size, *cuda_count;
+	//---
 	/*
-	run_on_gpu << <1, gijuKiekis >> > (); //Paleidzia gijas
+	cudaMalloc(&cuda_items, sizeof(Items));
+	cudaMalloc(&cuda_results, sizeof(Items));
+	cudaMalloc(&cuda_size, sizeof(int));
+	cudaMalloc(&cuda_count, sizeof(int));
+	//---
+	cudaMemcpy(cuda_items, items, sizeof(Items), cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_results, results, sizeof(Items), cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_size, &size, sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_count, &count, sizeof(int), cudaMemcpyHostToDevice);
+	//---
+	run_on_gpu << <1, gijuKiekis >> > (cuda_items, cuda_results, cuda_size); //Paleidzia gijas
+	//---
 	cudaDeviceSynchronize(); //Palaukti visu giju
-	*/
-	//Isvesti rezultatus
+	//---
+	cudaMemcpy(results, cuda_results, sizeof(Items), cudaMemcpyDeviceToHost);
+	//---
 
+	//Print results;
 
+	//---
 	delete(items);
+	delete(results);
+	cudaFree(cuda_items);
+	cudaFree(cuda_results);
+	cudaFree(cuda_size);
+	*/
+	//---
 	cout << "Finished" << endl;
 }
 
-__global__ void run_on_gpu() {
-	const char* name;
-	
-	execute(name);
+/*
+__global__ void run_on_gpu(Items *data, Items *results, int *size) {
+	int slice_size = *size / blockDim.x;
+	//---
+	int start_index = slice_size * threadIdx.x;
+	int end_index = (threadIdx.x == blockDim.x - 1)? *size : slice_size * (threadIdx.x + 1);
+	//---
+
+	execute();
 }
 
-__device__ void execute(const char* name) {
-	printf("%s: first\n", name);
-	printf("%s: second\n", name);
-	printf("%s: third\n", name);
+__device__ void execute() {
+	printf("%s: first\n");
+	printf("%s: second\n");
+	printf("%s: third\n");
 }
+*/
