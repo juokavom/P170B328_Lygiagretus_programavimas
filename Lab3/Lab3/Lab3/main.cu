@@ -52,7 +52,7 @@ public:
 	}
 
 	int outputSize() {
-		return Title.size() + 1 + to_string(calculateValue()).size();
+		return Title.size() + 3;
 	}
 
 	string ToStringWithValue() {
@@ -129,7 +129,8 @@ Items* readItems(string file) {
 __global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* price, char* results, int* size, unsigned int* count, int* chunk);
 __device__ float calculateValue(char* title, int titleLength, int quantity, float price);
 __device__ char* getTitle(char* arr, int begin, int len);
-__device__ void writeItem(char* results, unsigned int* count, int* chunk, char* title, int titleLength, float* result);
+__device__ void writeItem(char* results, unsigned int* count, int* chunk, char* title, int titleLength, float* result, int* res);
+
 int main() {
 	int gijuKiekis = 7;
 	string fileName = "Data/IFF8-12_AkramasJ_L1_dat_1.txt";
@@ -144,11 +145,6 @@ int main() {
 	float* price = (float*)malloc(sizeof(float) * size);
 	//---
 	int sizeee = sizeof(char) * arrayChunkSize * size;
-	printf("Size - %d\n", size);
-	printf("arrayChunkSize - %d\n", arrayChunkSize);
-	printf("Sizeee - %d\n", sizeee);
-
-
 	items->parseData(title, titleLength, quantity, price, &arrayChunkSize);
 	unsigned int count = 0;
 	//---VRAM kintamieji
@@ -160,12 +156,6 @@ int main() {
 	int* cuda_size;
 	unsigned int* cuda_count;
 	int* cuda_chunk_size;
-
-
-	printf("%s", title);
-
-
-
 	//---
 	cudaMalloc(&cuda_title, sizeof(char) * arrayChunkSize * size);
 	cudaMalloc(&cuda_title_length, sizeof(int) * size);
@@ -180,7 +170,6 @@ int main() {
 	cudaMemcpy(cuda_title_length, titleLength, sizeof(int) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_quantity, quantity, sizeof(int) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_price, price, sizeof(float) * size, cudaMemcpyHostToDevice);
-	//cudaMemcpy(cuda_results, results, sizeof(char) * arrayChunkSize * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_size, &size, sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_count, &count, sizeof(unsigned int), cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_chunk_size, &arrayChunkSize, sizeof(int), cudaMemcpyHostToDevice);
@@ -215,6 +204,7 @@ int main() {
 	cout << "Finished" << endl;
 }
 
+
 __global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* price, char* results, int* size, unsigned int* count, int* chunk) {
 	//printf("count === %d\n", *count);
 	int slice_size = *size / blockDim.x;
@@ -230,22 +220,30 @@ __global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* 
 		float result = calculateValue(curr_title, titleLength[i], quantity[i], price[i]);
 		float result2 = result - (int)result;
 		if (result2 > 0.5f) {
-			//atomicAdd(count, 1);
+			int res = result2 * 100;
 			unsigned int current_count = atomicAdd(count, 1);
-			writeItem(results, &current_count, chunk, curr_title, titleLength[i], &result);
+			writeItem(results, &current_count, chunk, curr_title, titleLength[i], &result, &res);
 			printf("current count: %u, title: %s, result: %f\n", current_count, curr_title, result);
 		}
 	}
 }
-__device__ void writeItem(char* results, unsigned int* count, int* chunk, char* title, int titleLength, float* result) {
+__device__ void writeItem(char* results, unsigned int* count, int* chunk, char* title, int titleLength, float* result, int* res) {
 	int current_index = (int)*count * *chunk;
 	int end_index = current_index + *chunk;
 	//printf("Pries\n%s\n", results);
 	for (int i = 0; i < titleLength; i++) {
-		results[current_index] = title[i];
+		char titleValue = (title[i] >= 97 && title[i] <= 122) ? title[i] - 32 : title[i];
+		titleValue = (title[i] == ' ') ? '_' : titleValue;
+		results[current_index] = titleValue;
 		current_index++;
 	}
 	results[current_index] = '-';
+	current_index++;
+	int nr = *res / 10;
+	results[current_index] = ('0' + nr);
+	current_index++;
+	nr = *res - nr * 10;
+	results[current_index] = ('0' + nr);
 	current_index++;
 	for (int i = current_index; i < end_index; i++) {
 		results[i] = ' ';
