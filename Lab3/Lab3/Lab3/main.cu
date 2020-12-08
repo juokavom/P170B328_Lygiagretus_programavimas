@@ -11,6 +11,8 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/iterator/zip_iterator.h>
+#include <new>
+
 
 using namespace std;
 using namespace thrust;
@@ -141,6 +143,12 @@ int main() {
 	int* quantity = (int*)malloc(sizeof(int) * size);
 	float* price = (float*)malloc(sizeof(float) * size);
 	//---
+	int sizeee = sizeof(char) * arrayChunkSize * size;
+	printf("Size - %d\n", size);
+	printf("arrayChunkSize - %d\n", arrayChunkSize);
+	printf("Sizeee - %d\n", sizeee);
+
+
 	items->parseData(title, titleLength, quantity, price, &arrayChunkSize);
 	unsigned int count = 0;
 	//---VRAM kintamieji
@@ -152,6 +160,12 @@ int main() {
 	int* cuda_size;
 	unsigned int* cuda_count;
 	int* cuda_chunk_size;
+
+
+	printf("%s", title);
+
+
+
 	//---
 	cudaMalloc(&cuda_title, sizeof(char) * arrayChunkSize * size);
 	cudaMalloc(&cuda_title_length, sizeof(int) * size);
@@ -175,10 +189,13 @@ int main() {
 	//---
 	cudaDeviceSynchronize(); //Palaukti visu giju
 	//---
-	char* results = (char*)malloc(sizeof(char) * arrayChunkSize * size);
-	cudaMemcpy(results, cuda_results, sizeof(char) * arrayChunkSize * size, cudaMemcpyDeviceToHost);
+	cudaMemcpy(&count, cuda_count, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	char* results = (char*)malloc(sizeof(char) * arrayChunkSize * count);
+	cudaMemcpy(results, cuda_results, sizeof(char) * arrayChunkSize * count, cudaMemcpyDeviceToHost);
 	//---
-	printf("%s", results);
+	for (int i = 0; i < sizeof(char) * arrayChunkSize * count; i++) {
+		printf("%c", results[i]);
+	}
 	//---
 	delete(items);
 	free(title);
