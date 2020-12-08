@@ -5,10 +5,15 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <algorithm>
 #include <vector>
 #include "device_launch_parameters.h"
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/iterator/zip_iterator.h>
 
-using namespace std; 
+using namespace std;
+using namespace thrust;
 
 
 
@@ -47,7 +52,7 @@ public:
 	int outputSize() {
 		return Title.size() + 1 + to_string(calculateValue()).size();
 	}
-	
+
 	string ToStringWithValue() {
 		char buff[100];
 		snprintf(buff, sizeof(buff), "|%s %f|\n", Title.c_str(), calculateValue());
@@ -64,7 +69,7 @@ public:
 		return sizeof(ItemArray) / sizeof(ItemArray[0]);
 	}
 
-	int maxCharSize(){
+	int maxCharSize() {
 		int max = ItemArray[0].outputSize();
 		for (int i = 1; i < size(); i++) {
 			int isize = ItemArray[i].outputSize();
@@ -73,9 +78,18 @@ public:
 		return max + 1; //FORMATAS: 'TITLE-value '
 	}
 
-	void parseData(string* title, int *quantity, float *price) {
+	void parseData(char* title, int* titleIndex, int* quantity, float* price, int* chunkSize) {
 		for (int i = 0; i < size(); i++) {
-			title[i] = ItemArray[i].Title;
+			char* curTitle = &ItemArray[i].Title[0];
+			titleIndex[i] = strlen(curTitle);
+			for (int u = 0; u < titleIndex[i]; u++) {
+				int globalIndex = i * *chunkSize + u;
+				title[globalIndex] = curTitle[u];
+			}
+			for (int u = titleIndex[i]; u < *chunkSize; u++) {
+				int globalIndex = i * *chunkSize + u;
+				title[globalIndex] = ' ';
+			}
 			quantity[i] = ItemArray[i].Quantity;
 			price[i] = ItemArray[i].Price;
 		}
@@ -110,44 +124,61 @@ Items* readItems(string file) {
 	return items;
 }
 
-__global__ void run_on_gpu(int* quantity, float* price, char* results, int* size, unsigned int* count);
-__device__ float calculateValue(int quantity, float price);
+__global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* price, char* results, int* size, unsigned int* count, int* chunk);
+__device__ float calculateValue(char* title, int* titleLength, int quantity, float price);
+__device__ char* getTitle(char* arr, int begin, int len);
 
 int main() {
 	int gijuKiekis = 7;
-	string fileName = "Data/IFF8-12_AkramasJ_L1_dat_1.txt";	
+	string fileName = "Data/IFF8-12_AkramasJ_L1_dat_1.txt";
 	//---RAM kintamieji
-	Items *items = readItems(fileName);
-	int sector_size = items->maxCharSize();
+	Items* items = readItems(fileName);
+	int arrayChunkSize = items->maxCharSize();
 	int size = items->size();
 	//---
-	string title[30];
-	int quantity[30];
-	float price[30];
-	items->parseData(title, quantity, price);
-	int resultSize = sizeof(char) * sector_size * size;
-	auto *results = malloc(resultSize);
+	char* title = (char*)malloc(sizeof(char) * arrayChunkSize * size);
+	int* titleLength = (int*)malloc(sizeof(int) * size);
+	int* quantity = (int*)malloc(sizeof(int) * size);
+	float* price = (float*)malloc(sizeof(float) * size);
+	//---
+	items->parseData(title, titleLength, quantity, price, &arrayChunkSize);
+	int resultSize = sizeof(char) * arrayChunkSize * size;
+	auto* results = malloc(resultSize);
 	unsigned int count = 0;
+
+	printf("%s\n", title);
+	printf("%d\n", sizeof(title));
+	printf("%d\n", sizeof(char) * arrayChunkSize * size);
+
 	//---VRAM kintamieji
+	char* cuda_title;
+	int* cuda_title_length;
 	int* cuda_quantity;
 	float* cuda_price;
-	char *cuda_results;
+	char* cuda_results;
 	int* cuda_size;
-	unsigned int *cuda_count;
+	unsigned int* cuda_count;
+	int* cuda_chunk_size;
 	//---
-	cudaMalloc(&cuda_quantity, sizeof(int)*size);
-	cudaMalloc(&cuda_price, sizeof(float)*size);
+	cudaMalloc(&cuda_title, sizeof(char) * arrayChunkSize * size);
+	cudaMalloc(&cuda_title_length, sizeof(int) * size);
+	cudaMalloc(&cuda_quantity, sizeof(int) * size);
+	cudaMalloc(&cuda_price, sizeof(float) * size);
 	cudaMalloc(&cuda_results, resultSize);
 	cudaMalloc(&cuda_size, sizeof(int));
 	cudaMalloc(&cuda_count, sizeof(unsigned int));
+	cudaMalloc(&cuda_chunk_size, sizeof(int));
 	//---
+	cudaMemcpy(cuda_title, title, sizeof(char) * arrayChunkSize * size, cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_title_length, titleLength, sizeof(int) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_quantity, quantity, sizeof(int) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_price, price, sizeof(float) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_results, results, resultSize, cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_size, &size, sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(cuda_count, &count, sizeof(unsigned int), cudaMemcpyHostToDevice);
+	cudaMemcpy(cuda_chunk_size, &arrayChunkSize, sizeof(int), cudaMemcpyHostToDevice);
 	//---
-	run_on_gpu << <1, gijuKiekis >> > (cuda_quantity, cuda_price, cuda_results, cuda_size, cuda_count); //Paleidzia gijas
+	run_on_gpu << <1, gijuKiekis >> > (cuda_title, cuda_title_length, cuda_quantity, cuda_price, cuda_results, cuda_size, cuda_count, cuda_chunk_size); //Paleidzia gijas
 	//---
 	cudaDeviceSynchronize(); //Palaukti visu giju
 	//---
@@ -159,43 +190,53 @@ int main() {
 
 	//---
 	delete(items);
+	free(title);
+	free(titleLength);
+	free(quantity);
+	free(price);
 	free(results);
+	cudaFree(cuda_title);
+	cudaFree(cuda_title_length);
 	cudaFree(cuda_quantity);
 	cudaFree(cuda_price);
 	cudaFree(cuda_results);
 	cudaFree(cuda_size);
 	cudaFree(cuda_count);
+	cudaFree(cuda_chunk_size);
 	//---
 	cout << "Finished" << endl;
 }
 
-__global__ void run_on_gpu(int* quantity, float* price, char *results, int *size, unsigned int *count) {
+__global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* price, char* results, int* size, unsigned int* count, int* chunk) {
+
 	int slice_size = *size / blockDim.x;
 	//---
 	int start_index = slice_size * threadIdx.x;
-	int end_index = (threadIdx.x == blockDim.x - 1)? *size : slice_size * (threadIdx.x + 1);
+	int end_index = (threadIdx.x == blockDim.x - 1) ? *size : slice_size * (threadIdx.x + 1);
 	//---
 	for (int i = start_index; i < end_index; i++) {
-		float result = calculateValue(quantity[i], price[i]);
+		int stringIndex = *chunk * i;
+		int stringLength = titleLength[i];
+		char* curr_title = getTitle(title, stringIndex, stringLength);
+		float result = calculateValue(curr_title, titleLength[i], quantity[i], price[i]);
 		if (result > 0.5f) {
 			atomicAdd(count, 1);
 		}
 	}
 }
-
-__device__ float calculateValue(int quantity, float price) {
-	//---
-	/*
-	vector<char> bytes(Title.begin(), Title.end());
-	int stringValues = 0;
-	for (char i : bytes) {
-		stringValues += i;
+__device__ char* getTitle(char* arr, int begin, int len) {
+	char* res = new char[len];
+	for (int i = 0; i < len; i++) {
+		res[i] = *(arr + begin + i);
 	}
-	int temp = stringValues ^ Quantity;
-	float finalV = temp * Price;
-	//---
-
+	return res;
+}
+__device__ float calculateValue(char* title, int* titleLength, int quantity, float price) {
+	int stringValues = 0;
+	for (int i = 0; i < *titleLength; i++) {
+		stringValues += title[i];
+	}
+	int temp = stringValues ^ quantity;
+	float finalV = temp * price;
 	return finalV;
-	*/
-	return 0.6f;
 }
