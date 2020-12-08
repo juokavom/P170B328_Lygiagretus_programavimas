@@ -4,4 +4,5 @@
   main.cu
 C:/Users/Studies/Desktop/Lygiagretusis programavimas/Repo/P170B328-Lab2/Lab3/Lab3/Lab3/main.cu(53): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
 C:/Users/Studies/Desktop/Lygiagretusis programavimas/Repo/P170B328-Lab2/Lab3/Lab3/Lab3/main.cu(84): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+     Creating library C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\Lab3\Lab3\x64\Debug\Lab3.lib and object C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\Lab3\Lab3\x64\Debug\Lab3.exp
   Lab3.vcxproj -> C:\Users\Studies\Desktop\Lygiagretusis programavimas\Repo\P170B328-Lab2\Lab3\Lab3\x64\Debug\Lab3.exe
