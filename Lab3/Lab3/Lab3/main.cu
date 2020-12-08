@@ -125,7 +125,7 @@ Items* readItems(string file) {
 }
 
 __global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* price, char* results, int* size, unsigned int* count, int* chunk);
-__device__ float calculateValue(char* title, int* titleLength, int quantity, float price);
+__device__ float calculateValue(char* title, int titleLength, int quantity, float price);
 __device__ char* getTitle(char* arr, int begin, int len);
 
 int main() {
@@ -145,11 +145,6 @@ int main() {
 	int resultSize = sizeof(char) * arrayChunkSize * size;
 	auto* results = malloc(resultSize);
 	unsigned int count = 0;
-
-	printf("%s\n", title);
-	printf("%d\n", sizeof(title));
-	printf("%d\n", sizeof(char) * arrayChunkSize * size);
-
 	//---VRAM kintamieji
 	char* cuda_title;
 	int* cuda_title_length;
@@ -219,6 +214,7 @@ __global__ void run_on_gpu(char* title, int* titleLength, int* quantity, float* 
 		int stringLength = titleLength[i];
 		char* curr_title = getTitle(title, stringIndex, stringLength);
 		float result = calculateValue(curr_title, titleLength[i], quantity[i], price[i]);
+		result = result - (int)result;
 		if (result > 0.5f) {
 			atomicAdd(count, 1);
 		}
@@ -231,9 +227,9 @@ __device__ char* getTitle(char* arr, int begin, int len) {
 	}
 	return res;
 }
-__device__ float calculateValue(char* title, int* titleLength, int quantity, float price) {
+__device__ float calculateValue(char* title, int titleLength, int quantity, float price) {
 	int stringValues = 0;
-	for (int i = 0; i < *titleLength; i++) {
+	for (int i = 0; i < titleLength; i++) {
 		stringValues += title[i];
 	}
 	int temp = stringValues ^ quantity;
