@@ -181,6 +181,7 @@ __global__ void runOnGPU(char* title, int* titleLength, int* quantity, float* pr
 	//---
 	int start_index = slice_size * threadIdx.x;
 	int end_index = (threadIdx.x == blockDim.x - 1) ? *size : slice_size * (threadIdx.x + 1);
+	printf("thread count: %d, item count: %d\n", threadIdx.x, start_index - end_index); //Kiek el. gauna kiekviena gija
 	//---
 	for (int i = start_index; i < end_index; i++) {
 		int stringIndex = *chunk * i;
