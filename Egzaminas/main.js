@@ -1,27 +1,23 @@
+'use strict';
+
 const { start, dispatch, stop, spawnStateless } = require('nact');
 const system = start();
 
 const delay = (time) => new Promise((res) => setTimeout(res, time));
 
-const array = [...Array(3).keys()];
-const data = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
-
+const array = [...Array(7).keys()];
+const data = require('./Data/IFF8-12_AkramasJ_L1_dat_1.json');
 
 const worker = [];
-
-
 array.forEach(i => {
     worker.push(
         spawnStateless(system, async (msg, ctx) =>  {
             //console.log(ctx.name, ', message: ', msg.item, ', working...');
-            await delay(500);
+            //await delay(500);
             //console.log(ctx.name, ', sending back to balancer...');
             dispatch(balancer, { item: msg.item, flag: 2, index: i });
           }, `worker-${i}`));
-  });
-
-console.log(worker.length);
-
+});
 
 const bottleneck = [];
 const balancer = spawnStateless(system, async (msg, ctx) =>  {
@@ -52,7 +48,7 @@ const balancer = spawnStateless(system, async (msg, ctx) =>  {
 }, 'balancer');
 
 
-data.forEach(element => {
+data['items'].forEach(element => {
     //console.log(element);
     dispatch(balancer, { item: element, flag: 1 });
 });
