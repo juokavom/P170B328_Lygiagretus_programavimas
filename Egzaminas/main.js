@@ -1,0 +1,10 @@
+const { start, dispatch, stop, spawnStateless } = require('nact');
+const system = start();
+
+const greeter = spawnStateless(
+    system, // parent
+    (msg, ctx) => console.log(`Hello ${msg.name}`), // function
+    'greeter' // name
+  );  
+
+  dispatch(greeter, { name: 'Erlich Bachman' });
