@@ -5,15 +5,20 @@ const delay = (time) => new Promise((res) => setTimeout(res, time));
 
 const array = [...Array(3).keys()];
 const names = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+//const names = ['First'];
 
 
 const worker = [];
+const bottleneck = [];
+
 
 array.forEach(i => {
     worker.push(
         spawnStateless(system, async (msg, ctx) =>  {
-            console.log(ctx.name, ' ', msg.name);
+            //console.log(ctx.name, ', message: ', msg.name, ', working...');
             await delay(500);
+            //console.log(ctx.name, ', sending back to balancer...');
+            dispatch(balancer, { name: msg.name, flag: 2, index: i });
           }, `worker-${i}`));
   });
 
@@ -21,10 +26,27 @@ console.log(worker.length);
 
 
 const balancer = spawnStateless(system, async (msg, ctx) =>  {
-    console.log('Balancer, value : ', msg.name);
 
-    dispatch(worker[array.pop()], { name: msg.name});
+    if(msg.flag == 1){
+        if(array.length < 1){
+            //console.log('No free actor workers, adding to stack for later ', msg.name);
+            bottleneck.push(msg.name);     
+        } else {
+            send(msg.name);
+        }
+    }
+    if(msg.flag == 2){
+        console.log('Received from worker-', msg.index, ', value : ', msg.name);
+        array.push(msg.index);
+        if(bottleneck.length > 0){    
+            send(bottleneck.pop());
+        }
+    }
 
+    function send(name){
+        //console.log('Balancer, value : ', name, '. Sending to worker.');
+        dispatch(worker[array.pop()], { name: name});
+    }
 
   }, 'balancer');
 
@@ -32,8 +54,8 @@ const balancer = spawnStateless(system, async (msg, ctx) =>  {
 
 
   names.forEach(element => {
-    console.log(element);
-    dispatch(balancer, { name: element });
+    //console.log(element);
+    dispatch(balancer, { name: element, flag: 1 });
 });
 
 /*
