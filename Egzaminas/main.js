@@ -12,27 +12,20 @@ const worker = [];
 array.forEach(i => {
     worker.push(
         spawnStateless(system, async (msg, ctx) =>  {
-            console.log(msg.name);
+            console.log(ctx.name, ' ', msg.name);
             await delay(500);
-          }));
+          }, `worker-${i}`));
   });
 
 console.log(worker.length);
 
-dispatch(worker[2], { name: 'begin1' });
 
-/*
 const balancer = spawnStateless(system, async (msg, ctx) =>  {
     console.log('Balancer, value : ', msg.name);
-    console.log(array);
-    array.forEach(el => {if(el < 15){
-        dispatch(worker[el], { name: element });
 
-    }});
-    // ping: Pong is a little slow. So I'm giving myself a little handicap :P
-    await delay(500);
-    //dispatch(msg.sender, { value: ctx.name, sender: ctx.self });
-    //dispatch(msg.sender, { value: msg.value, sender: ctx.self });
+    dispatch(worker[array.pop()], { name: msg.name});
+
+
   }, 'balancer');
 
 
