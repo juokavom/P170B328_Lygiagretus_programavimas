@@ -1,7 +1,7 @@
 'use strict';
 const { start, dispatch, stop, spawnStateless } = require('nact');
 const system = start();
-const delay = (time) => new Promise((res) => setTimeout(res, time));
+//const delay = (time) => new Promise((res) => setTimeout(res, time));
 
 const array = [...Array(7).keys()];
 const data = require('./Data/IFF8-12_AkramasJ_L1_dat_1.json');
@@ -11,11 +11,10 @@ array.forEach(i => {
     worker.push(
         spawnStateless(system, async (msg, ctx) =>  {
             //console.log(ctx.name, ', message: ', msg.item, ', working...');
-            const bytes = [...Buffer.from(msg.item.title)];
-            const result = (bytes.reduce((sum, i) => sum + i, 0) ^ msg.item.quantity) * msg.item.price;
-            if(result %1 > 0.5){            
+            msg.item.result = ([...Buffer.from(msg.item.title)].reduce((sum, i) => sum + i, 0) ^ msg.item.quantity) * msg.item.price;
+            if(msg.item.result %1 > 0.5){            
                 //console.log(ctx.name, ', sending back to balancer...');
-                dispatch(balancer, { item: msg.item, flag: 2, worker: i, result: result });
+                dispatch(balancer, { item: msg.item, flag: 2, worker: i});
             }
           }, `worker-${i}`));
 });
@@ -24,6 +23,7 @@ const repo = [];
 const repository = spawnStateless(system, async (msg, ctx) =>  {
     if(msg.flag == 1){
         repo.push(msg.item);
+        repo.sort((a, b) => a.result - b.result);
     }
     if(msg.flag == 2){
         dispatch(balancer, { items: repo, flag: 4 });
@@ -31,7 +31,8 @@ const repository = spawnStateless(system, async (msg, ctx) =>  {
 }, 'repository');
 
 const printer = spawnStateless(system, async (msg, ctx) =>  {
-    console.log(msg.items);
+    //console.log(msg.items);
+    msg.items.forEach(i => console.log(i.title, ' ', i.result));
 }, 'printer');
 
 const balancer = spawnStateless(system, async (msg, ctx) =>  {
@@ -43,7 +44,7 @@ const balancer = spawnStateless(system, async (msg, ctx) =>  {
     }
     if(msg.flag == 2){
         //console.log('Received from worker-',msg.worker, ', value : ', msg.item, ', result: ', msg.result);
-        dispatch(repository, {item: msg.item, result: msg.result, flag: 1});
+        dispatch(repository, {item: msg.item, flag: 1});
     }
     if(msg.flag == 3){
         dispatch(repository, {flag: 2});
@@ -55,7 +56,7 @@ const balancer = spawnStateless(system, async (msg, ctx) =>  {
 }, 'balancer');
 
 
-data['items'].forEach(element => {
+data['items'].map(element => {
     dispatch(balancer, { item: element, flag: 1 });
 });
 dispatch(balancer, { flag: 3 });
