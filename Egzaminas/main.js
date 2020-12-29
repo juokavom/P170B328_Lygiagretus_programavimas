@@ -86,7 +86,10 @@ const printer = spawnStateless(balancer, async (msg, ctx) => {
     });
 }, 'printer');
 
+//Skirstytuvui po vieną persiunčiami nuskaityti duomenys 
 data.map(element => {
     dispatch(balancer, { item: element, flag: 1 });
 });
+//Po nuskaitytų duomenų skirstytuvui nurodoma iš rezultatų kaupiklio
+//persiųsti duomenis spausdintojui
 dispatch(balancer, { flag: 3 });
